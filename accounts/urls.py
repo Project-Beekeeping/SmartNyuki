@@ -1,4 +1,5 @@
 from django.urls import path
+from django.conf import settings as st
 from .views import signup
 from .views import signin
 from .views import dashboard
@@ -26,4 +27,4 @@ urlpatterns = [
     path('reset_password/', views.password_reset, name='reset_password'),
     path('save-token/', views.save_token, name='save_token'),
     path('api/initiate_payment/', views.initiate_payment, name='initiate_payment'),
-]
+] + static(st.STATIC_URL, document_root=st.STATIC_ROOT)

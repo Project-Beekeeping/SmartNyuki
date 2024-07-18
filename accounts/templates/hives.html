@@ -74,59 +74,58 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function fetchHiveData() {
-            console.log('Listening for hive data changes...');
-            db.ref('hives').on('value', (snapshot) => {
-                const hives = snapshot.val();
-                console.log('Hive data:', JSON.stringify(hives, null, 2));
-                const hiveTableBody = document.getElementById('hiveTableBody');
-                hiveTableBody.innerHTML = '';
+    function fetchHiveData() {
+    console.log('Fetching hive data...');
+    const hiveTableBody = document.getElementById('hiveTableBody');
+    hiveTableBody.innerHTML = ''; // Clear the table initially
 
-                if (hives) {
-                    for (const hiveId in hives) {
-                        if (hives.hasOwnProperty(hiveId)) {
-                            const hive = hives[hiveId];
-                            console.log(`Hive ${hiveId} data:`, JSON.stringify(hive, null, 2));
+    // Remove any existing listener to prevent duplication
+    db.ref('hives').off();
 
-                            // Access the latest temperature
-                            const temperatureEntries = hive.temperature || {};
-                            const latestTemperature = getLatestValue(temperatureEntries);
+    db.ref('hives').on('value', (snapshot) => {
+        const hives = snapshot.val();
+        console.log('Hive data:', JSON.stringify(hives, null, 2));
 
-                            // Access the latest humidity
-                            const humidityEntries = hive.humidity || {};
-                            const latestHumidity = getLatestValue(humidityEntries);
+        if (hives) {
+            for (const hiveId in hives) {
+                if (hives.hasOwnProperty(hiveId)) {
+                    const hive = hives[hiveId];
+                    console.log(`Hive ${hiveId} data:`, JSON.stringify(hive, null, 2));
 
-                            // Access the latest sound level
-                            const soundEntries = hive.soundValue || {};
-                            const latestSound = getLatestValue(soundEntries);
+                    const latestTemperature = getLatestValue(hive.temperature || {});
+                    const latestHumidity = getLatestValue(hive.humidity || {});
+                    const latestSound = getLatestValue(hive.soundValue || {});
+                    const weight = hive.weight ? hive.weight.value : 'N/A';
 
-                            const weight = hive.weight ? hive.weight.value : 'N/A';
-
-                            const row = `
-                                <tr>
-                                    <td>${hiveId}</td>
-                                    <td>${latestTemperature}</td>
-                                    <td>${latestHumidity}</td>
-                                    <td>${latestSound}</td>
-                                    <td>${weight}</td>
-                                </tr>
-                            `;
-                            hiveTableBody.innerHTML += row;
-                        }
-                    }
-                } else {
-                    hiveTableBody.innerHTML = '<tr><td colspan="5">No hive data available</td></tr>';
+                    const row = `
+                        <tr>
+                            <td>${hiveId}</td>
+                            <td>${latestTemperature}</td>
+                            <td>${latestHumidity}</td>
+                            <td>${latestSound}</td>
+                            <td>${weight}</td>
+                        </tr>
+                    `;
+                    hiveTableBody.innerHTML += row;
                 }
-            });
+            }
+        } else {
+            hiveTableBody.innerHTML = '<tr><td colspan="5">No hive data available</td></tr>';
         }
+    });
+}
+
 
         function getLatestValue(entries) {
             const entryKeys = Object.keys(entries);
             if (entryKeys.length === 0) return 'N/A';
+            const latestKey = entryKeys.sort().pop();
+            return entries[latestKey];
+        }
 
-            // Sort keys to find the latest entry
-            const latestKey = entryKeys.sort().pop(); // Get the last key
-            return entries[latestKey]; // Return the value of the latest entry
+        function addNewHive() {
+            fetchHiveData(); // Refresh hive data
+            console.log("Hive data fetched successfully.");
         }
 
         window.onload = fetchHiveData;

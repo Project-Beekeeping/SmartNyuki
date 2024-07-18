@@ -150,12 +150,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+''' STATICFILES_DIRS = [BASE_DIR / "static"] '''
 
 # Define the directories where Django will look for static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'accounts/static'),
 ]
+
+if not os.path.exists(os.path.join(BASE_DIR, 'accounts/static')):
+    os.makedirs(os.path.join(BASE_DIR, 'accounts/static'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -210,4 +219,4 @@ MPESA_PASSWORD = 'YourMpesaPassword'
 MPESA_CALLBACK_URL = 'http://yourdomain.com/mpesa/callback-url'  # Replace with your actual callback URL
 MPESA_ACCESS_TOKEN = 'YourMpesaAccessToken'
 
-STATIC_URL = '/static/'
+

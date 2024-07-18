@@ -72,7 +72,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        // Your web app's Firebase configuration
         var firebaseConfig = {
           apiKey: "AIzaSyCiraum9gVPXkgP3KgEXk3WMhEb64XZjZE",
           authDomain: "project-login2-6c049.firebaseapp.com",
@@ -82,36 +81,16 @@
           appId: "1:865918979599:web:b0cb8e55945a81921d9d7a",
           databaseURL: "https://project-login2-6c049-default-rtdb.europe-west1.firebasedatabase.app/",
         };
-        // Initialize Firebase
+
         firebase.initializeApp(firebaseConfig);
 
-        const db = firebase.firestore();
         const messaging = firebase.messaging();
-
-        const THRESHOLD_TEMPERATURE = 35; // Celsius
-        const THRESHOLD_HUMIDITY = 70; // Percentage
-        const THRESHOLD_SOUND = 80; // Decibels
-        const THRESHOLD_WEIGHT = 100; // Kilograms
-
-        function sendNotification(data) {
-          const notificationTitle = 'Threshold Exceeded';
-          const notificationOptions = {
-            body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
-            icon: '{% static "images/notification-icon.png" %}'
-          };
-
-          if (Notification.permission === 'granted') {
-            navigator.serviceWorker.ready.then((registration) => {
-              registration.showNotification(notificationTitle, notificationOptions);
-            });
-          }
-        }
 
         Notification.requestPermission()
           .then((permission) => {
             if (permission === 'granted') {
               console.log('Notification permission granted.');
-              return messaging.getToken({ vapidKey: 'YOUR_VAPID_KEY' });
+              return messaging.getToken({ vapidKey: 'BPcN1QQusauAgsQFobgQbtcC4BcBBawLm4wLNLs4lCqwQ8jB0LzN2zuzLsRjfMAghd-tDSNaNnwK7PvRddqJ0Fc' });
             } else {
               console.error('Unable to get permission to notify.');
             }
@@ -119,12 +98,13 @@
           .then((token) => {
             if (token) {
               console.log('Token received: ', token);
-              // Save the token to your server or Firestore if needed
             }
           })
           .catch((err) => {
             console.error('Error getting token or permission:', err);
           });
+
+        const db = firebase.firestore();
 
         db.collection("hives").onSnapshot((snapshot) => {
           snapshot.forEach((doc) => {
@@ -136,15 +116,34 @@
         });
 
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/accounts/static/firebase-messaging-sw.js')
+          navigator.serviceWorker.register('/static/firebase-messaging-sw.js')
             .then((registration) => {
               console.log('Service Worker registered with scope:', registration.scope);
             })
             .catch((err) => {
               console.error('Service Worker registration failed:', err);
+              console.log('Attempted to register service worker at:', '/static/firebase-messaging-sw.js');
             });
         }
       });
+
+      function sendNotification(data) {
+        const notificationTitle = 'Threshold Exceeded';
+        const notificationOptions = {
+          body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
+        };
+
+        if (Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(notificationTitle, notificationOptions);
+          });
+        }
+      }
+
+      const THRESHOLD_TEMPERATURE = 35;
+      const THRESHOLD_HUMIDITY = 80;
+      const THRESHOLD_SOUND = 70;
+      const THRESHOLD_WEIGHT = 10;
     </script>
 </body>
 </html>

@@ -56,54 +56,53 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'scripts.js' %}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const payNowBtn = document.getElementById('pay-now-btn');
-            if (payNowBtn) {
-                payNowBtn.addEventListener('click', function() {
-                    payNowBtn.disabled = true;
-                    payNowBtn.textContent = 'Processing...';
+    document.addEventListener('DOMContentLoaded', function() {
+        const payNowBtn = document.getElementById('pay-now-btn');
+        if (payNowBtn) {
+            payNowBtn.addEventListener('click', function() {
+                payNowBtn.disabled = true;
+                payNowBtn.textContent = 'Processing...';
 
-                    fetch('{% url 'initiate_payment' %}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        },
-                        body: JSON.stringify({
-                            payment_method: 'mpesa'
-                        })
+                fetch('{% url 'initiate_payment' %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        payment_method: 'mpesa'
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Payment initiated. Please confirm on your phone.');
-                            // Optionally, redirect or show a success message
-                        } else {
-                            alert('Failed to initiate payment. Please try again.');
-                            payNowBtn.disabled = false;
-                            payNowBtn.textContent = 'Pay Now';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error initiating payment:', error);
-                        alert('Error initiating payment. Please try again.');
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Network response was not ok: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Payment initiated. Please confirm on your phone.');
+                    } else {
+                        alert('Failed to initiate payment. Please try again.');
                         payNowBtn.disabled = false;
                         payNowBtn.textContent = 'Pay Now';
-                    });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error initiating payment:', error);
+                    alert('Error initiating payment. Please try again.');
+                    payNowBtn.disabled = false;
+                    payNowBtn.textContent = 'Pay Now';
                 });
-            }
+            });
+        } else {
+            console.error('Element with ID "pay-now-btn" not found.');
+        }
+    });
+</script>
 
-            // Example for canvas context error handling
-            const canvas = document.getElementById('yourCanvasId');
-            if (canvas) {
-                const ctx = canvas.getContext('2d');
-                // Your canvas drawing code
-            } else {
-                console.error('Canvas element with ID "yourCanvasId" not found.');
-            }
-        });
-    </script>
 </body>
 </html>

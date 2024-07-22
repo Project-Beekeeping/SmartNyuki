@@ -156,15 +156,11 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-''' STATICFILES_DIRS = [
-    BASE_DIR / "SmartNyuki/accounts/static",
-]
- '''
+
 
 # Define the directories where Django will look for static files
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'accounts/static'),
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'accounts/static')]
+
 
 if not os.path.exists(os.path.join(BASE_DIR, 'accounts/static')):
     os.makedirs(os.path.join(BASE_DIR, 'accounts/static'))

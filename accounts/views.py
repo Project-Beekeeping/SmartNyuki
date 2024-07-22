@@ -181,21 +181,37 @@ def initiate_payment(request):
         consumer_secret = 'your_consumer_secret'
 
         # Replace with your logic to fetch user's phone number
-        user_phone_number = request.user.profile.Phone  # Replace with how you retrieve user's phone number
+        user_phone_number = request.user.profile.phone  # Replace with how you retrieve user's phone number
+
+        # Fetch OAuth token
+        def get_oauth_token(consumer_key, consumer_secret):
+            oauth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+            response = requests.get(oauth_url, auth=(consumer_key, consumer_secret))
+            if response.status_code == 200:
+                return response.json().get('access_token')
+            return None
+
+        access_token = get_oauth_token(consumer_key, consumer_secret)
+        if not access_token:
+            return JsonResponse({'success': False, 'error': 'Failed to retrieve access token'})
+
+        # Generate timestamp and password
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        password = base64.b64encode((business_shortcode + lipa_na_mpesa_online_passkey + timestamp).encode('utf-8')).decode('utf-8')
 
         # Construct your request to M-Pesa API
         headers = {
-            'Authorization': 'Bearer YOUR_ACCESS_TOKEN',  # Replace with actual OAuth2 access token
+            'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json',
         }
         payload = {
-            'BusinessShortCode': 'YOUR_BUSINESS_SHORTCODE',
-            'Password': 'YOUR_PASSWORD',
-            'Timestamp': 'YYYYMMDDHHMMSS',
+            'BusinessShortCode': business_shortcode,
+            'Password': password,
+            'Timestamp': timestamp,
             'TransactionType': 'CustomerPayBillOnline',
             'Amount': '1000',  # Replace with actual subscription amount
             'PartyA': user_phone_number,
-            'PartyB': 'YOUR_PAYBILL_NUMBER',
+            'PartyB': business_shortcode,  # Typically your paybill or till number
             'PhoneNumber': user_phone_number,
             'CallBackURL': 'YOUR_CALLBACK_URL',
             'AccountReference': 'YOUR_ACCOUNT_REFERENCE',
@@ -205,11 +221,13 @@ def initiate_payment(request):
         try:
             response = requests.post(api_endpoint, headers=headers, json=payload)
             response_data = response.json()
-            # Process the response from M-Pesa API, handle success or failure
-            return JsonResponse({'success': True})  # Example response
+            if response.status_code == 200 and response_data.get('ResponseCode') == '0':
+                return JsonResponse({'success': True, 'message': 'Payment initiated. Please confirm on your phone.'})
+            else:
+                error_message = response_data.get('errorMessage', 'Failed to initiate payment.')
+                return JsonResponse({'success': False, 'error': error_message})
         except Exception as e:
             print(f"Error initiating payment: {e}")
-            return JsonResponse({'success': False, 'error': str(e)})  # Example error response
+            return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-        

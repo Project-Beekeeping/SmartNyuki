@@ -281,7 +281,7 @@
                 addHiveModal.hide();
             });
 
-            // Show hive analytics
+           
             window.showHiveAnalytics = function(hiveId) {
                 db.ref(`hives/${hiveId}`).once('value', (snapshot) => {
                     const hiveData = snapshot.val();

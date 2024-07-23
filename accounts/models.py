@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     fcm_token = models.CharField(max_length=255, blank=True, null=True)
+    
+class Apiary(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
 
 class Threshold(models.Model):
     hive_id = models.IntegerField()
@@ -12,15 +16,14 @@ class Threshold(models.Model):
     value = models.FloatField()
 
 class Hive(models.Model):
+    apiary = models.ForeignKey(Apiary, related_name='hives', on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=100)
-    temperature_threshold_low = models.FloatField(default=10.0)
-    temperature_threshold_high = models.FloatField(default=40.0)
-    humidity_threshold_low = models.FloatField(default=45.0)
-    humidity_threshold_high = models.FloatField(default=70.0)
-    sound_threshold_high = models.FloatField(default=70.0)
+    temperature = models.FloatField(default=0)
+    humidity = models.FloatField(default=0)
+    weight = models.FloatField(default=0)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} in {self.apiary.name}"
 
 
 class AbstractBaseModel(models.Model):

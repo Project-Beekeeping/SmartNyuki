@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'accounts',
     'social_django',
     'django_daraja',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

@@ -8,7 +8,7 @@ from .views import subscription
 from .views import profile
 from .views import save_token
 from .views import logout
-from .views import settings
+from .views import settings, firebase_messaging_sw_js
 from .views import password_reset
 from .import views
 from django.conf.urls.static import static
@@ -27,4 +27,5 @@ urlpatterns = [
     path('reset_password/', views.password_reset, name='reset_password'),
     path('save-token/', views.save_token, name='save_token'),
     path('api/initiate_payment/', views.initiate_payment, name='initiate_payment'),
-] + static(st.STATIC_URL, document_root=st.STATIC_ROOT)
+    path('firebase-messaging-sw.js', views.firebase_messaging_sw_js, name='firebase-messaging-sw.js'),
+] 

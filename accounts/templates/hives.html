@@ -62,54 +62,65 @@
     </div>
     <script>
         const firebaseConfig = {
-            databaseURL: "https://project-login2-6c049-default-rtdb.europe-west1.firebasedatabase.app/",
-            apiKey: "AIzaSyCiraum9gVPXkgP3KgEXk3WMhEb64XZjZE",
-            authDomain: "project-login2-6c049.firebaseapp.com",
-            projectId: "project-login2-6c049",
-            storageBucket: "project-login2-6c049.appspot.com",
-            messagingSenderId: "865918979599",
-            appId: "1:865918979599:web:b0cb8e55945a81921d9d7a"
-        };
+        apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+        authDomain: "projectmain1-44cce.firebaseapp.com",
+        databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "projectmain1-44cce",
+        storageBucket: "projectmain1-44cce.appspot.com",
+        messagingSenderId: "592837634615",
+        appId: "1:592837634615:web:ca63818dd7101534dc6db2"
+    };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function fetchHiveData() {
-            console.log('Fetching hive data...');
-            const hiveTableBody = document.getElementById('hiveTableBody');
-            hiveTableBody.innerHTML = ''; // Clear the table initially
+    function fetchHiveData() {
+    console.log('Fetching hive data...');
+    const hiveTableBody = document.getElementById('hiveTableBody');
+    hiveTableBody.innerHTML = ''; // Clear the table initially
 
-            db.ref('hives').on('value', (snapshot) => {
-                const hives = snapshot.val();
-                console.log('Hive data:', JSON.stringify(hives, null, 2));
+    // Remove any existing listener to prevent duplication
+    db.ref('hives').off();
 
-                if (hives) {
-                    for (const hiveId in hives) {
-                        if (hives.hasOwnProperty(hiveId)) {
-                            const hive = hives[hiveId];
-                            console.log(`Hive ${hiveId} data:`, JSON.stringify(hive, null, 2));
+    db.ref('hives').on('value', (snapshot) => {
+        const hives = snapshot.val();
+        console.log('Hive data:', JSON.stringify(hives, null, 2));
 
-                            const latestTemperature = hive.temperature || 'N/A';
-                            const latestHumidity = hive.humidity || 'N/A';
-                            const latestSound = hive.soundValue || 'N/A';
-                            const weight = hive.weight || 'N/A';
+        if (hives) {
+            for (const hiveId in hives) {
+                if (hives.hasOwnProperty(hiveId)) {
+                    const hive = hives[hiveId];
+                    console.log(`Hive ${hiveId} data:`, JSON.stringify(hive, null, 2));
 
-                            const row = `
-                                <tr>
-                                    <td>${hiveId}</td>
-                                    <td>${latestTemperature}</td>
-                                    <td>${latestHumidity}</td>
-                                    <td>${latestSound}</td>
-                                    <td>${weight}</td>
-                                </tr>
-                            `;
-                            hiveTableBody.innerHTML += row;
-                        }
-                    }
-                } else {
-                    hiveTableBody.innerHTML = '<tr><td colspan="5">No hive data available</td></tr>';
+                    const latestTemperature = getLatestValue(hive.temperature || {});
+                    const latestHumidity = getLatestValue(hive.humidity || {});
+                    const latestSound = getLatestValue(hive.soundValue || {});
+                    const weight = hive.weight ? hive.weight.value : 'N/A';
+
+                    const row = `
+                        <tr>
+                            <td>${hiveId}</td>
+                            <td>${latestTemperature}</td>
+                            <td>${latestHumidity}</td>
+                            <td>${latestSound}</td>
+                            <td>${weight}</td>
+                        </tr>
+                    `;
+                    hiveTableBody.innerHTML += row;
                 }
-            });
+            }
+        } else {
+            hiveTableBody.innerHTML = '<tr><td colspan="5">No hive data available</td></tr>';
+        }
+    });
+}
+
+
+        function getLatestValue(entries) {
+            const entryKeys = Object.keys(entries);
+            if (entryKeys.length === 0) return 'N/A';
+            const latestKey = entryKeys.sort().pop();
+            return entries[latestKey];
         }
 
         function addNewHive() {

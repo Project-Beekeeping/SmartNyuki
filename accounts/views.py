@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .models import Threshold
-from .utils import send_push_notification
+from .utils import send_push_notification, absAppPath
 import json, base64
 from django.urls import reverse
 from django.views.generic import View
@@ -231,3 +231,16 @@ def initiate_payment(request):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@csrf_exempt
+def firebase_messaging_sw_js(request):
+    filename = 'firebase-messaging-sw.js'
+    filepath = absAppPath('accounts', 'static', filename)
+    try:
+        with open(filepath, 'rb') as jsfile:
+            response = HttpResponse(jsfile.read(), content_type='application/javascript')
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+    except FileNotFoundError:
+        return HttpResponse(status=404)

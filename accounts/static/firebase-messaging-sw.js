@@ -1,8 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js');
   
-
-// Initialize Firebase
 var firebaseConfig = {
   apiKey: "AIzaSyCiraum9gVPXkgP3KgEXk3WMhEb64XZjZE",
   authDomain: "project-login2-6c049.firebaseapp.com",

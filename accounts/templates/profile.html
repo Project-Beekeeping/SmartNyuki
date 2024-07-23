@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -116,7 +116,7 @@
         });
 
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/static/firebase-messaging-sw.js')
+          navigator.serviceWorker.register("{% static 'firebase-messaging-sw.js' %}")
             .then((registration) => {
               console.log('Service Worker registered with scope:', registration.scope);
             })
@@ -128,19 +128,23 @@
       });
 
       function sendNotification(data) {
-        const notificationTitle = 'Threshold Exceeded';
-        const notificationOptions = {
-          body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
-        };
+      const notificationTitle = 'Threshold Exceeded';
+      const notificationOptions = {
+        body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
+      };
 
-        if (Notification.permission === 'granted') {
-          navigator.serviceWorker.ready.then((registration) => {
-            registration.showNotification(notificationTitle, notificationOptions);
-          });
-        }
-      }
+      if (Notification.permission === 'granted') {
+      navigator.serviceWorker.ready.then((registration) => {
+          console.log('Sending notification:', notificationTitle, notificationOptions);
+        registration.showNotification(notificationTitle, notificationOptions);
+      });
+    } else {
+      console.error('Notification permission not granted.');
+    }
+}
 
-      const THRESHOLD_TEMPERATURE = 35;
+
+      const THRESHOLD_TEMPERATURE = 20;
       const THRESHOLD_HUMIDITY = 80;
       const THRESHOLD_SOUND = 70;
       const THRESHOLD_WEIGHT = 10;

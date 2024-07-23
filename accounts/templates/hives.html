@@ -1,134 +1,334 @@
-{% load static %}
+{%load static%}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hives</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <title>Apiaries and Hives</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f7f9fc;
+            margin: 0;
+            padding-top: 60px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .card {
+            margin-bottom: 30px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+        }
+        .footer {
+            margin-top: auto;
+            background-color: #343a40;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .hive-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #fff;
+            margin: 10px;
+            width: 150px;
+            height: 200px;
+            position: relative;
+        }
+        .hive-image {
+            width: 100%;
+            height: 100px;
+            background-color: #ffcc00;
+            border-radius: 4px;
+        }
+        .hive-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .hive-name {
+            font-weight: bold;
+        }
+        .hive-meta {
+            color: #757575;
+            font-size: 0.875rem;
+        }
+        .hive-details {
+            font-size: 0.75rem;
+            color: #757575;
+            text-align: center;
+        }
+        .options-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <div class="image-container">
-                <img src="{% static 'images/SmartNyuki.png' %}" alt="Company Logo" class="responsive-image">
-            </div>
-            <div class="sidebar-menu">
-                <ul>
-                    <li><a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="{% url 'hives' %}" class="active"><i class="fas fa-box"></i> Hives</a></li>
-                    <li><a href="{% url 'subscription' %}"><i class="fas fa-credit-card"></i> Subscription</a></li>
-                    <li><a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
-                </ul>
-            </div>
-            <div class="documentation">
-                <p>Need help? Please check our docs</p>
-                <button>Documentation</button>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="{% url 'dashboard' %}">Smart Beekeeping</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'hives' %}">Hives</a>
+                </li>
+                {% comment %} <li class="nav-item">
+                    <a class="nav-link" href="{% url 'analytics' %}">Analytics</a>
+                </li> {% endcomment %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="container mt-5">
+        <!-- Form to add a new apiary -->
+        <div class="container">
+            <h2>Add a New Apiary</h2>
+            <form id="addApiaryForm">
+                <div class="form-group">
+                    <label for="apiaryName">Apiary Name</label>
+                    <input type="text" class="form-control" id="apiaryName" placeholder="Enter apiary name" required>
+                </div>
+                <div class="form-group">
+                    <label for="apiaryLocation">Location</label>
+                    <input type="text" class="form-control" id="apiaryLocation" placeholder="Enter apiary location" required>
+                </div>
+                <button type="submit" id="addApiaryBtn" class="btn btn-primary btn-small">Add Apiary</button>
+            </form>
+            <button id="clearAllBtn" class="btn btn-warning btn-small mt-3">Clear All Apiaries</button>
+        </div>
+
+        <!-- Section to display apiary data -->
+        <div class="container my-4">
+            <h2>Apiaries</h2>
+            <div id="apiaryData" class="row">
+                <!-- Apiary data will be displayed here -->
             </div>
         </div>
-        <div class="main-content">
-            <div class="header">
-                <h1>HIVES</h1>
-            </div>
-            <div class="content">
-                <div class="hive-info">
-                    <div class="hive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Hive</th>
-                                    <th>Temperature(C)</th>
-                                    <th>Humidity(%)</th>
-                                    <th>Sound(dB)</th>
-                                    <th>Weight(kgs)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="hiveTableBody">
-                                <!-- Hive data will be populated here from Firebase -->
-                            </tbody>
-                        </table>
+
+        <!-- Modal for adding a new hive -->
+        <div class="modal fade" id="addHiveModal" tabindex="-1" role="dialog" aria-labelledby="addHiveModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addHiveModalLabel">Add a New Hive</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addHiveForm">
+                            <div class="form-group">
+                                <label for="hiveName">Hive Name</label>
+                                <input type="text" class="form-control" id="hiveName" placeholder="Enter hive name" required>
+                            </div>
+                            <input type="hidden" id="selectedApiary">
+                            <button type="submit" class="btn btn-primary btn-small">Add Hive</button>
+                        </form>
                     </div>
                 </div>
-                <button onclick="addNewHive()">Add New Hive</button>
             </div>
-            <div class="footer">
-                &copy; 2024 Smart Nyuki. All Rights Reserved. <a href="https://www.smartabee.netlify.app.com">Privacy Policy</a>
+        </div>
+
+        <!-- Modal for hive analytics -->
+        <div class="modal fade" id="hiveAnalyticsModal" tabindex="-1" role="dialog" aria-labelledby="hiveAnalyticsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="hiveAnalyticsModalLabel">Hive Analytics</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <canvas id="hiveAnalyticsChart"></canvas>
+                        <div class="hive-condition mt-3">
+                            <h6>Overall Condition</h6>
+                            <p id="hiveCondition"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <span>&copy; 2024 Smart Beekeeping. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script>
         const firebaseConfig = {
-        apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
-        authDomain: "projectmain1-44cce.firebaseapp.com",
-        databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "projectmain1-44cce",
-        storageBucket: "projectmain1-44cce.appspot.com",
-        messagingSenderId: "592837634615",
-        appId: "1:592837634615:web:ca63818dd7101534dc6db2"
-    };
+            apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+            authDomain: "projectmain1-44cce.firebaseapp.com",
+            databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "projectmain1-44cce",
+            storageBucket: "projectmain1-44cce.appspot.com",
+            messagingSenderId: "592837634615",
+            appId: "1:592837634615:web:cf20da3ef0d110ec08678b",
+            measurementId: "G-YM0E50NE8R"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-    function fetchHiveData() {
-    console.log('Fetching hive data...');
-    const hiveTableBody = document.getElementById('hiveTableBody');
-    hiveTableBody.innerHTML = ''; // Clear the table initially
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiaryDataDiv = document.getElementById('apiaryData');
+            const addApiaryForm = document.getElementById('addApiaryForm');
+            const addHiveModal = new bootstrap.Modal(document.getElementById('addHiveModal'));
+            const addHiveForm = document.getElementById('addHiveForm');
+            const hiveAnalyticsModal = new bootstrap.Modal(document.getElementById('hiveAnalyticsModal'));
+            const hiveAnalyticsChart = document.getElementById('hiveAnalyticsChart').getContext('2d');
 
-    // Remove any existing listener to prevent duplication
-    db.ref('hives').off();
-
-    db.ref('hives').on('value', (snapshot) => {
-        const hives = snapshot.val();
-        console.log('Hive data:', JSON.stringify(hives, null, 2));
-
-        if (hives) {
-            for (const hiveId in hives) {
-                if (hives.hasOwnProperty(hiveId)) {
-                    const hive = hives[hiveId];
-                    console.log(`Hive ${hiveId} data:`, JSON.stringify(hive, null, 2));
-
-                    const latestTemperature = getLatestValue(hive.temperature || {});
-                    const latestHumidity = getLatestValue(hive.humidity || {});
-                    const latestSound = getLatestValue(hive.soundValue || {});
-                    const weight = hive.weight ? hive.weight.value : 'N/A';
-
-                    const row = `
-                        <tr>
-                            <td>${hiveId}</td>
-                            <td>${latestTemperature}</td>
-                            <td>${latestHumidity}</td>
-                            <td>${latestSound}</td>
-                            <td>${weight}</td>
-                        </tr>
-                    `;
-                    hiveTableBody.innerHTML += row;
-                }
+            // Fetch and display apiaries
+            function fetchApiaries() {
+                db.ref('apiaries').on('value', (snapshot) => {
+                    apiaryDataDiv.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const apiary = childSnapshot.val();
+                        const apiaryId = childSnapshot.key;
+                        apiaryDataDiv.innerHTML += `
+                            <div class="card col-md-4 col-sm-6 col-xs-12">
+                                <div class="card-header">
+                                    ${apiary.name}
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">Location: ${apiary.location}</p>
+                                    <button class="btn btn-info btn-small" onclick="showAddHiveModal('${apiaryId}')">Add Hive</button>
+                                    <button class="btn btn-danger btn-small mt-2" onclick="deleteApiary('${apiaryId}')">Delete Apiary</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
             }
-        } else {
-            hiveTableBody.innerHTML = '<tr><td colspan="5">No hive data available</td></tr>';
-        }
-    });
-}
 
+            fetchApiaries();
 
-        function getLatestValue(entries) {
-            const entryKeys = Object.keys(entries);
-            if (entryKeys.length === 0) return 'N/A';
-            const latestKey = entryKeys.sort().pop();
-            return entries[latestKey];
-        }
+            // Add new apiary
+            addApiaryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const apiaryName = document.getElementById('apiaryName').value;
+                const apiaryLocation = document.getElementById('apiaryLocation').value;
 
-        function addNewHive() {
-            fetchHiveData(); // Refresh hive data
-            console.log("Hive data fetched successfully.");
-        }
+                const newApiaryRef = db.ref('apiaries').push();
+                newApiaryRef.set({
+                    name: apiaryName,
+                    location: apiaryLocation
+                });
 
-        window.onload = fetchHiveData;
+                addApiaryForm.reset();
+            });
+
+            // Add new hive modal
+            window.showAddHiveModal = function(apiaryId) {
+                document.getElementById('selectedApiary').value = apiaryId;
+                addHiveModal.show();
+            };
+
+            addHiveForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const hiveName = document.getElementById('hiveName').value;
+                const apiaryId = document.getElementById('selectedApiary').value;
+
+                const newHiveRef = db.ref(`apiaries/${apiaryId}/hives`).push();
+                newHiveRef.set({
+                    name: hiveName,
+                    createdAt: new Date().toISOString()
+                });
+
+                addHiveForm.reset();
+                addHiveModal.hide();
+            });
+
+            // Show hive analytics
+            window.showHiveAnalytics = function(hiveId) {
+                db.ref(`hives/${hiveId}`).once('value', (snapshot) => {
+                    const hiveData = snapshot.val();
+                    const labels = [];
+                    const data = [];
+
+                    for (let key in hiveData) {
+                        labels.push(key);
+                        data.push(hiveData[key].value);
+                    }
+
+                    new Chart(hiveAnalyticsChart, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Hive Metrics',
+                                data: data,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    beginAtZero: true
+                                },
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                    document.getElementById('hiveCondition').innerText = `Condition: ${hiveData.condition || 'N/A'}`;
+                });
+
+                hiveAnalyticsModal.show();
+            };
+
+            // Clear all apiaries
+            document.getElementById('clearAllBtn').addEventListener('click', () => {
+                db.ref('apiaries').remove();
+            });
+        });
     </script>
 </body>
 </html>

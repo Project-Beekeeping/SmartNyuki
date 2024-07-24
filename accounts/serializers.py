@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from rest_framework import serializers
+=======
+from rest_framework import serializers # type: ignore
+>>>>>>> Backend
 from .models import Apiary, Hive
 
 class HiveSerializer(serializers.ModelSerializer):

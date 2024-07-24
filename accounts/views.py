@@ -10,9 +10,12 @@ from django.contrib.auth.decorators import login_required
 from .models import Threshold
 from .utils import send_push_notification, absAppPath
 import json, base64
+from .firebase_config import messaging
 from django.urls import reverse
 from django.views.generic import View
-from firebase_admin import firestore
+from firebase_admin import firestore # type: ignore
+from pyfcm import FCMNotification # type: ignore
+from django.conf import settings as st
 import requests
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -74,22 +77,31 @@ def sensor_data_view(request, hive_id):
     }
     return render(request, 'profile.html', context)
 
-def send_push_notification(token, title, body):
-    server_key = 'BPNsumvdyu5y1tjNslXq5iGDBC6AI_6DRN8EiZVn7UOFLxpp_npNfqNIMEReBIvmdmFBl2EnMJANLsU_LIELOsc'
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'key={server_key}',
-    }
-    payload = {
-        'notification': {
-            'title': title,
-            'body': body,
-        },
-        'to': token,
-    }
-    response = requests.post('https://fcm.googleapis.com/fcm/send', headers=headers, data=json.dumps(payload))
-    print('Notification sent:', response.json())
+def send_notification(request):
+    # Replace with the actual device token
+    registration_token = 'e5zqvrab_UOxPCpS_hf1ku:APA91bH-waKoX1LieJDeZE3T7qHlDSGvmyNb_Wvaw8JN-sdPzxz2COx3IIHZG4_Qpc--iw591KE7S7jO27RI6MszuxBgfccjDQQZLQVlfo9pHHU9gBtRVvO7zjse3LQDKC_d9l_8m_RO'
 
+    # Create a message
+    message = messaging.Message(
+        token=registration_token,
+        notification=messaging.Notification(
+            title='My Message Title',
+            body='This is a test message.',
+        ),
+    )
+
+    # Send the message
+    response = messaging.send(message)
+    print('Successfully sent message:', response)
+
+    return render(request, 'your_template.html')
+
+def send_test_notification(request):
+    registration_id = 'YOUR_TEST_DEVICE_REGISTRATION_ID'  # Replace with actual registration ID
+    title = 'Test Notification'
+    body = 'This is a test notification.'
+    result = send_push_notification(registration_id, title, body)
+    return JsonResponse(result)
     
 def home(request):
     return render(request, 'home.html')
@@ -128,8 +140,6 @@ def signin(request):
 def password_reset(request):
     if request.method == 'POST':
         email = request.POST.get('reset-email')
-        # Perform your logic to send reset email here
-        # Example: send_mail(...) or use Firebase functionality
 
         message = 'Password reset email sent!'
         return render(request, 'password.html_reset', {'message': message})
@@ -170,7 +180,7 @@ def sensor_data_view(request, hive_id):
     return render(request, 'sensor_data.html', context)
 
 @login_required
-@csrf_exempt  # Temporarily exempt from CSRF for simplicity, handle CSRF properly in production
+@csrf_exempt  
 def initiate_payment(request):
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')  # Assuming 'mpesa' for M-Pesa payment method

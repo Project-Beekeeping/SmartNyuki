@@ -218,3 +218,5 @@ MPESA_CALLBACK_URL = 'http://yourdomain.com/mpesa/callback-url'  # Replace with 
 MPESA_ACCESS_TOKEN = 'YourMpesaAccessToken'
 
 
+# settings.py
+FIREBASE_API_KEY = '35fc259adf6fda4bda4ab72b2a3a0999195cf5224864b069dc3cc6d313afc7bb90141a39e69133df'

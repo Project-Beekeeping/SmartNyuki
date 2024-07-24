@@ -14,6 +14,18 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
+self.addEventListener('push', function (event) {
+  const data = event.data.json();
+  const title = data.notification.title;
+  const options = {
+    body: data.notification.body,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  )
+});
+
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   const notificationTitle = payload.notification.title;

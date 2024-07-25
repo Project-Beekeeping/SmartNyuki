@@ -77,31 +77,32 @@ def sensor_data_view(request, hive_id):
     }
     return render(request, 'profile.html', context)
 
-def send_notification(request):
-    # Replace with the actual device token
-    registration_token = 'e5zqvrab_UOxPCpS_hf1ku:APA91bH-waKoX1LieJDeZE3T7qHlDSGvmyNb_Wvaw8JN-sdPzxz2COx3IIHZG4_Qpc--iw591KE7S7jO27RI6MszuxBgfccjDQQZLQVlfo9pHHU9gBtRVvO7zjse3LQDKC_d9l_8m_RO'
-
-    # Create a message
-    message = messaging.Message(
-        token=registration_token,
-        notification=messaging.Notification(
-            title='My Message Title',
-            body='This is a test message.',
-        ),
-    )
-
-    # Send the message
-    response = messaging.send(message)
-    print('Successfully sent message:', response)
-
-    return render(request, 'your_template.html')
+def send_notification(registration_ids, message_title, message_desc):
+    fcm_api = "BHlZePK-xq5Vfrgf76S6lvXw2yqkpMTqEdQALF_WQyI79neNn-vrJ_Dtkd1fLD5wviLpDtokJdNMpKcqrkm6SiE"
+    url = "https://fcm.googleapis.com/fcm/send"
+    
+    headers = {
+        "Content-type" : "application/json",
+        "Authorization": 'key='+fcm_api
+    }
+    
+    payload = {
+        "registration_ids" : registration_ids,
+        "priority" : "high",
+        "notification" : {
+            "body" : message_desc,
+            "title" : message_title,
+        }
+        
+    }
+    result = requests.post(url, data=json.dumps(payload), headers=headers)
+    print(result.json())
+    
 
 def send_test_notification(request):
-    registration_id = 'YOUR_TEST_DEVICE_REGISTRATION_ID'  # Replace with actual registration ID
-    title = 'Test Notification'
-    body = 'This is a test notification.'
-    result = send_push_notification(registration_id, title, body)
-    return JsonResponse(result)
+    registration = ['d64nVYneu6vrGN97-35XcY:APA91bGaDZpPwF5koCSWIMb7CKKwzLA0x_TfclZku850E6iGY9gTPFo4ZouArM9Hdubcc24fRDi7-wXrlK4IZJ3Ld-lsiQJKXqsfp_sPMd8c-8u42M4_fes9I4cllzfQWM55sNodw80y']
+    send_notification(registration, 'Hive Condition', 'Temperature for Hive1 is too high')
+    return HttpResponse("Notification sent")
     
 def home(request):
     return render(request, 'home.html')

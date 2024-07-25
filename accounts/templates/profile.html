@@ -108,13 +108,13 @@
 
       document.addEventListener('DOMContentLoaded', () => {
         var firebaseConfig = {
-          apiKey: "AIzaSyCiraum9gVPXkgP3KgEXk3WMhEb64XZjZE",
-          authDomain: "project-login2-6c049.firebaseapp.com",
-          projectId: "project-login2-6c049",
-          storageBucket: "project-login2-6c049.appspot.com",
-          messagingSenderId: "865918979599",
-          appId: "1:865918979599:web:b0cb8e55945a81921d9d7a",
-          databaseURL: "https://project-login2-6c049-default-rtdb.europe-west1.firebasedatabase.app/",
+            apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+            authDomain: "projectmain1-44cce.firebaseapp.com",
+            databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "projectmain1-44cce",
+            storageBucket: "projectmain1-44cce.appspot.com",
+            messagingSenderId: "592837634615",
+            appId: "1:592837634615:web:ca63818dd7101534dc6db2"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -125,7 +125,7 @@
           .then((permission) => {
             if (permission === 'granted') {
               console.log('Notification permission granted.');
-              return messaging.getToken({ vapidKey: 'BPcN1QQusauAgsQFobgQbtcC4BcBBawLm4wLNLs4lCqwQ8jB0LzN2zuzLsRjfMAghd-tDSNaNnwK7PvRddqJ0Fc' });
+              return messaging.getToken({ vapidKey: 'BHlZePK-xq5Vfrgf76S6lvXw2yqkpMTqEdQALF_WQyI79neNn-vrJ_Dtkd1fLD5wviLpDtokJdNMpKcqrkm6SiE' });
             } else {
               console.error('Unable to get permission to notify.');
             }
@@ -140,15 +140,20 @@
             console.error('Error getting token or permission:', err);
           });
 
-        const db = firebase.firestore();
+        messaging.onMessage((payload) => {
+          console.log('Message received. ', payload);
 
-        db.collection("hives").onSnapshot((snapshot) => {
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.temperature > THRESHOLD_TEMPERATURE || data.humidity > THRESHOLD_HUMIDITY || data.sound > THRESHOLD_SOUND || data.weight > THRESHOLD_WEIGHT) {
-              sendNotification(data);
-            }
-          });
+          const notificationTitle = payload.notification ? payload.notification.title : 'Default Title';
+          const notificationOptions = {
+            body: payload.notification ? payload.notification.body : 'Default body text',
+            icon: payload.notification ? payload.notification.icon : '/firebase-logo.png'
+          };
+
+          if (Notification.permission === 'granted') {
+            new Notification(notificationTitle, notificationOptions);
+          } else {
+            console.error('Notification permission not granted.');
+          }
         });
 
         if ('serviceWorker' in navigator) {
@@ -162,27 +167,6 @@
             });
         }
       });
-
-      function sendNotification(data) {
-        const notificationTitle = 'Threshold Exceeded';
-        const notificationOptions = {
-          body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
-        };
-
-        if (Notification.permission === 'granted') {
-          navigator.serviceWorker.ready.then((registration) => {
-            console.log('Sending notification:', notificationTitle, notificationOptions);
-            registration.showNotification(notificationTitle, notificationOptions);
-          });
-        } else {
-          console.error('Notification permission not granted.');
-        }
-      }
-
-      const THRESHOLD_TEMPERATURE = 20;
-      const THRESHOLD_HUMIDITY = 80;
-      const THRESHOLD_SOUND = 70;
-      const THRESHOLD_WEIGHT = 10;
     </script>
 </body>
 </html>

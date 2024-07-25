@@ -28,6 +28,8 @@ from django.contrib.auth import logout
 from .models import Hive, FCMToken
 from .forms import LoginForm
 
+ACC_TOKEN = ""
+
 @csrf_exempt
 @login_required
 def save_token(request):
@@ -81,29 +83,32 @@ def sensor_data_view(request, hive_id):
 
 db = firestore.client()
 
-def send_notification(user, title, body):
-    try:
-        token = FCMToken.objects.get(user=user).token
-        message = messaging.Message(
-            notification=messaging.Notification(
-                title=title,
-                body=body,
-            ),
-            token=token,
-        )
-        response = messaging.send(message)
-        print('Successfully sent message:', response)
-    except FCMToken.DoesNotExist:
-        print('Error: User does not have a FCM token.')
-    except Exception as e:
-        print('Error sending push notification:', e)
+def send_notification(registration_ids, message_title, message_desc):
+    fcm_api = "55ad0de6a76ed5efac019b6ba7b2ad671502872e"
+    url = "https://fcm.googleapis.com/fcm/send"
+    
+    headers = {
+        "Content-type" : "application/json",
+        "Authorization": 'key='+fcm_api
+    }
+    
+    payload = {
+        "registration_ids" : registration_ids,
+        "priority" : "high",
+        "notification" : {
+            "body" : message_desc,
+            "title" : message_title,
+        }
+        
+    }
+    result = requests.post(url, data=json.dumps(payload), headers=headers)
+    print(result)
 
 def send_test_notification(request):
-    registration_id = 'YOUR_TEST_DEVICE_REGISTRATION_ID'  # Replace with actual registration ID
-    title = 'Test Notification'
-    body = 'This is a test notification.'
-    result = send_push_notification(registration_id, title, body)
-    return JsonResponse(result)
+    registration = ACC_TOKEN
+    send_notification(registration, 'Hive Condition', 'Temperature for Hive1 is too high')
+    return HttpResponse({"msg": "sent"})
+
     
 def home(request):
     return render(request, 'home.html')
@@ -265,6 +270,7 @@ def save_fcm_token(request):
         try:
             body = json.loads(request.body.decode('utf-8'))
             token = body.get('token')
+            ACC_TOKEN = token
             return JsonResponse({'message': 'Token saved successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

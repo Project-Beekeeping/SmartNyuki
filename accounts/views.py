@@ -26,6 +26,8 @@ from django.contrib.auth import logout
 from .models import Hive
 from .forms import LoginForm
 
+ACC_TOKEN = ""
+
 @csrf_exempt
 @login_required
 def save_token(request):
@@ -77,8 +79,10 @@ def sensor_data_view(request, hive_id):
     }
     return render(request, 'profile.html', context)
 
+db = firestore.client()
+
 def send_notification(registration_ids, message_title, message_desc):
-    fcm_api = "BHlZePK-xq5Vfrgf76S6lvXw2yqkpMTqEdQALF_WQyI79neNn-vrJ_Dtkd1fLD5wviLpDtokJdNMpKcqrkm6SiE"
+    fcm_api = "55ad0de6a76ed5efac019b6ba7b2ad671502872e"
     url = "https://fcm.googleapis.com/fcm/send"
     
     headers = {
@@ -96,13 +100,13 @@ def send_notification(registration_ids, message_title, message_desc):
         
     }
     result = requests.post(url, data=json.dumps(payload), headers=headers)
-    print(result.json())
-    
+    print(result)
 
 def send_test_notification(request):
-    registration = ['d64nVYneu6vrGN97-35XcY:APA91bGaDZpPwF5koCSWIMb7CKKwzLA0x_TfclZku850E6iGY9gTPFo4ZouArM9Hdubcc24fRDi7-wXrlK4IZJ3Ld-lsiQJKXqsfp_sPMd8c-8u42M4_fes9I4cllzfQWM55sNodw80y']
+    registration = ACC_TOKEN
     send_notification(registration, 'Hive Condition', 'Temperature for Hive1 is too high')
-    return HttpResponse("Notification sent")
+    return HttpResponse({"msg": "sent"})
+
     
 def home(request):
     return render(request, 'home.html')
@@ -262,6 +266,7 @@ def save_fcm_token(request):
         try:
             body = json.loads(request.body.decode('utf-8'))
             token = body.get('token')
+            ACC_TOKEN = token
             return JsonResponse({'message': 'Token saved successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

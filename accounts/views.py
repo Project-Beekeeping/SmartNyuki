@@ -14,7 +14,6 @@ from .firebase_config import messaging
 from django.urls import reverse
 from django.views.generic import View
 from firebase_admin import firestore # type: ignore
-from pyfcm import FCMNotification # type: ignore
 from django.conf import settings as st
 import requests
 from django.conf import settings

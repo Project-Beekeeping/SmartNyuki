@@ -14,6 +14,7 @@ from .firebase_config import messaging
 from django.urls import reverse
 from django.views.generic import View
 from firebase_admin import firestore # type: ignore
+''' from pyfcm import FCMNotification # type: ignore '''
 from django.conf import settings as st
 import requests
 from django.conf import settings
@@ -253,3 +254,14 @@ def firebase_messaging_sw_js(request):
             return response
     except FileNotFoundError:
         return HttpResponse(status=404)
+    
+@csrf_exempt
+def save_fcm_token(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            token = body.get('token')
+            return JsonResponse({'message': 'Token saved successfully'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)

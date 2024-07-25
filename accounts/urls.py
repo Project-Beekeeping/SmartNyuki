@@ -6,7 +6,7 @@ from .views import dashboard
 from .views import hives
 from .views import subscription
 from .views import profile
-from .views import save_token
+from .views import save_fcm_token
 from .views import logout
 from .views import settings, firebase_messaging_sw_js
 from .views import password_reset
@@ -31,4 +31,5 @@ urlpatterns = [
     path('send-test-notification/', views.send_test_notification, name='send_test_notification'),
     path('send-notification/', views.send_notification, name='send_notification'),
     path('firebase-messaging-sw.js', views.firebase_messaging_sw_js, name='firebase-messaging-sw.js'),
+    path('save-fcm-token/', save_fcm_token, name='save_fcm_token'),
 ] 

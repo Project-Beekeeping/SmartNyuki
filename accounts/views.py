@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from .forms import SignUpForm
+import firebase_admin
+from firebase_admin import messaging
 from datetime import datetime
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
@@ -14,7 +16,7 @@ from .firebase_config import messaging
 from django.urls import reverse
 from django.views.generic import View
 from firebase_admin import firestore # type: ignore
-from pyfcm import FCMNotification # type: ignore
+''' from pyfcm import FCMNotification # type: ignore '''
 from django.conf import settings as st
 import requests
 from django.conf import settings
@@ -23,7 +25,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django_daraja.mpesa.core import MpesaClient
 from django.contrib.auth import logout
-from .models import Hive
+from .models import Hive, FCMToken
 from .forms import LoginForm
 
 @csrf_exempt
@@ -77,24 +79,24 @@ def sensor_data_view(request, hive_id):
     }
     return render(request, 'profile.html', context)
 
-def send_notification(request):
-    # Replace with the actual device token
-    registration_token = 'e5zqvrab_UOxPCpS_hf1ku:APA91bH-waKoX1LieJDeZE3T7qHlDSGvmyNb_Wvaw8JN-sdPzxz2COx3IIHZG4_Qpc--iw591KE7S7jO27RI6MszuxBgfccjDQQZLQVlfo9pHHU9gBtRVvO7zjse3LQDKC_d9l_8m_RO'
+db = firestore.client()
 
-    # Create a message
-    message = messaging.Message(
-        token=registration_token,
-        notification=messaging.Notification(
-            title='My Message Title',
-            body='This is a test message.',
-        ),
-    )
-
-    # Send the message
-    response = messaging.send(message)
-    print('Successfully sent message:', response)
-
-    return render(request, 'your_template.html')
+def send_notification(user, title, body):
+    try:
+        token = FCMToken.objects.get(user=user).token
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=title,
+                body=body,
+            ),
+            token=token,
+        )
+        response = messaging.send(message)
+        print('Successfully sent message:', response)
+    except FCMToken.DoesNotExist:
+        print('Error: User does not have a FCM token.')
+    except Exception as e:
+        print('Error sending push notification:', e)
 
 def send_test_notification(request):
     registration_id = 'YOUR_TEST_DEVICE_REGISTRATION_ID'  # Replace with actual registration ID
@@ -165,6 +167,7 @@ def logout(request):
 
 def settings(request):
     return render(request, 'settings.html')
+
 
 @login_required
 def sensor_data_view(request, hive_id):
@@ -254,3 +257,15 @@ def firebase_messaging_sw_js(request):
             return response
     except FileNotFoundError:
         return HttpResponse(status=404)
+
+
+@csrf_exempt
+def save_fcm_token(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            token = body.get('token')
+            return JsonResponse({'message': 'Token saved successfully'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)

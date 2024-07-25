@@ -71,6 +71,41 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
     <script>
+      function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === ('csrftoken=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+      }
+
+      function saveTokenToBackend(token) {
+        fetch('/save-fcm-token/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ token: token })
+        }).then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Token saved to backend:', data);
+        }).catch(error => {
+            console.error('Error saving token to backend:', error.message);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
         var firebaseConfig = {
           apiKey: "AIzaSyCiraum9gVPXkgP3KgEXk3WMhEb64XZjZE",
@@ -98,6 +133,7 @@
           .then((token) => {
             if (token) {
               console.log('Token received: ', token);
+              saveTokenToBackend(token);
             }
           })
           .catch((err) => {
@@ -128,21 +164,20 @@
       });
 
       function sendNotification(data) {
-      const notificationTitle = 'Threshold Exceeded';
-      const notificationOptions = {
-        body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
-      };
+        const notificationTitle = 'Threshold Exceeded';
+        const notificationOptions = {
+          body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
+        };
 
-      if (Notification.permission === 'granted') {
-      navigator.serviceWorker.ready.then((registration) => {
-          console.log('Sending notification:', notificationTitle, notificationOptions);
-        registration.showNotification(notificationTitle, notificationOptions);
-      });
-    } else {
-      console.error('Notification permission not granted.');
-    }
-}
-
+        if (Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then((registration) => {
+            console.log('Sending notification:', notificationTitle, notificationOptions);
+            registration.showNotification(notificationTitle, notificationOptions);
+          });
+        } else {
+          console.error('Notification permission not granted.');
+        }
+      }
 
       const THRESHOLD_TEMPERATURE = 20;
       const THRESHOLD_HUMIDITY = 80;

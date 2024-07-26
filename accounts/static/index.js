@@ -230,18 +230,6 @@ function generateRandomNotification() {
        
         { message: 'Hive 7 in Apiary 1 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
         { message: 'Hive 7 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 6 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 3 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 1 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 9 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 5 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 2 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 8 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 4 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 7 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 7 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 7 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 7 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
     ];
 
     const notification = notifications[Math.floor(Math.random() * notifications.length)];
@@ -283,7 +271,7 @@ function viewAllNotifications() {
 }
 
 // Generate random notifications every 2 minutes
-setInterval(generateRandomNotification, 30000);
+setInterval(generateRandomNotification, 86400000);
 
 // Initialize notifications
 $(document).ready(function() {

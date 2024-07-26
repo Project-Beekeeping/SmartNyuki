@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,16 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apiaries and Hives</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'style.css' %}" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <a class="navbar-brand" href="#">
             <img src="{% static 'images/7835cfc6-3d93-401c-b774-fa98a9d4f8c8-removebg-preview.png' %}" alt="Smart Beekeeping Logo" style="height: 60px;">
         </a>
-        <a class="navbar-brand" href="{% url 'home' %}">Smart Beekeeping</a>
+        <a class="navbar-brand" href="#">Smart Beekeeping</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -96,6 +96,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Hive Card Example -->
 
                     <!-- Modal for Hive Conditions -->
                     <div class="modal fade" id="hiveConditionModal" tabindex="-1" aria-labelledby="hiveConditionModalLabel" aria-hidden="true">
@@ -152,7 +153,6 @@
                         <a class="dropdown-item text-center" href="#" onclick="viewAllNotifications()">View all notifications</a>
                     </div>
                 </div>
-
                 <!-- Add Tips & Best Practices Section -->
                 <div class="tips mt-4">
                     <h2 class="text-center">Tips & Best Practices</h2>
@@ -186,8 +186,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{% static 'js/scripts.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{% static 'index.js' %}"></script>
-
 </body>
 </html>

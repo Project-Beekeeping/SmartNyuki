@@ -47,11 +47,7 @@ INSTALLED_APPS = [
     'accounts',
     'social_django',
     'django_daraja',
-<<<<<<< HEAD
-    'rest_framework',
-=======
     'channels',
->>>>>>> Backend
 ]
 
 MIDDLEWARE = [

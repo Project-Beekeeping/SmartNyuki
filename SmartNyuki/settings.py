@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +47,11 @@ INSTALLED_APPS = [
     'accounts',
     'social_django',
     'django_daraja',
+<<<<<<< HEAD
     'rest_framework',
+=======
+    'channels',
+>>>>>>> Backend
 ]
 
 MIDDLEWARE = [
@@ -60,6 +65,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'SmartNyuki.urls'
+
+ASGI_APPLICATION = 'SmartNyuki.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',

@@ -3,6 +3,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from .forms import SignUpForm
+<<<<<<< HEAD
+=======
+import firebase_admin
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from firebase_admin import messaging
+>>>>>>> Backend
 from datetime import datetime
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
@@ -41,6 +48,28 @@ def save_token(request):
             return JsonResponse({'message': 'Token saved successfully'})
         return JsonResponse({'error': 'No token provided'}, status=400)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def send_notification_to_all(message):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'notifications',
+        {
+            'type': 'send_notification',
+            'message': message
+        }
+    )
+
+def send_notification_view(request):
+    channel_layer = get_channel_layer()
+    message = {"message": "Test notification from Django view"}
+    async_to_sync(channel_layer.group_send)(
+        "notifications",  # Replace with your group name
+        {
+            "type": "send_notification",
+            "message": message
+        }
+    )
+    return JsonResponse({"status": "Notification sent"})
 
 @login_required
 def sensor_data_view(request, hive_id):
@@ -160,6 +189,9 @@ def subscription(request):
 
 def profile(request):
     return render(request, 'profile.html')
+
+def profile1(request):
+    return render(request, "profile1.html")
 
 
 def logout(request):

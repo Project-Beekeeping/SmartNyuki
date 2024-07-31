@@ -1,0 +1,36 @@
+<script>
+
+        let unreadNotifications = 0;
+
+        const socket = new WebSocket('ws://127.0.0.1:8000/ws/notifications/');
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            displayNotification(data.message);
+        };
+
+        function displayNotification(message) {
+            const notificationItem = document.createElement('a');
+            notificationItem.classList.add('dropdown-item');
+            notificationItem.href = '#';
+            notificationItem.textContent = message;
+
+            notificationsDropdown.insertBefore(notificationItem, notificationsDropdown.firstChild);
+            unreadNotifications++;
+            unreadCount.textContent = unreadNotifications;
+            unreadCount.style.display = 'inline';
+        }
+
+        function toggleNotifications() {
+            const isDisplayed = notificationsDropdown.style.display === 'block';
+            notificationsDropdown.style.display = isDisplayed ? 'none' : 'block';
+            if (!isDisplayed) {
+                unreadNotifications = 0;
+                unreadCount.textContent = unreadNotifications;
+                unreadCount.style.display = 'none';
+            }
+        }
+
+        function viewAllNotifications() {
+            notificationsDropdown.style.display = 'none';
+        }
+    </script>

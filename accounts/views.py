@@ -181,6 +181,9 @@ def password_reset(request):
 def hives(request):
     return render(request, 'hives.html')
 
+def analytics(request):
+    return render(request, 'analytics.html')
+
 def subscription(request):
     return render(request, 'subscription.html')
 

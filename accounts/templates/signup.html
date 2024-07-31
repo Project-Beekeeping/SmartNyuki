@@ -1,50 +1,143 @@
-{% load static%}
+{%load static%}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <link rel="stylesheet" href="{% static 'signup.css' %}">
-    <script src="{% static 'form_validation.js' %}" defer></script>
+    <title>Signup Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        body {
+            background-color: rgba(232, 77, 5, 0.78);
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Ensure no scrollbars */
+        }
+
+        .signup-container {
+            background: #fff;
+            opacity: 0.8;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            position: relative; /* Make container the reference point */
+        }
+
+        .signup-container img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .signup-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .signup-container button {
+            background-color: #cb4012;
+        }
+
+        .form-control {
+            border-radius: 0;
+            border-color: #ccc;
+            box-shadow: none;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group i {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: #aaa;
+        }
+
+        /* Bee animation */
+        .bee {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('/images/ezgif-6-36a7414e2a.gif') no-repeat center center;
+            background-size: contain;
+            animation: rotate 10s infinite linear;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg) translateX(200px) rotate(0deg); }
+            100% { transform: rotate(90deg) translateX(200px) rotate(-90deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Welcome</h1>
-    </div>
-    <div class="social-signup">
-        <p>Register with:</p>
-        <a href="{% url 'social:begin' 'google-oauth2' %}" class="social-btn google">
-            <img src="{% static 'images/google.png' %}" alt="Google">
-        </a>
-    </div>
-    <div class="container">
-        <form action="{% url 'signup' %}" method="post" novalidate>
-            {% csrf_token %}
-            <div class="form-group">
+    <div class="signup-container">
+        <div class="bee"></div>
+        <!-- Image and Title -->
+        <img src="{% static 'images/Smart.png' %}" alt="App Logo">
+        <h1>SMART NYUKI SOLUTIONS</h1>
+        
+        <form id="signup">
+            <div class="form-group position-relative">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+                <i class="fas fa-user"></i>
             </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+            <div class="form-group position-relative">
+                <label for="email">Email address</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                <i class="fas fa-envelope"></i>
             </div>
-            <div class="form-group">
-                <label for="password1">Password</label>
-                <input type="password" id="password1" name="password1" required>
+            <div class="form-group position-relative">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
+                <i class="fas fa-lock"></i>
             </div>
-            <div class="form-group">
-                <label for="password2">Confirm Password</label>
-                <input type="password" id="password2" name="password2" required>
+            <div class="form-group position-relative">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm-password" placeholder="Confirm Password" required>
+                <i class="fas fa-lock"></i>
             </div>
-            <div class="form-group remember-me">
-                <input type="checkbox" id="remember-me" name="remember-me">
-                <label for="remember-me">Remember Me</label>
-            </div>
-            {% include 'message.html' %}
-            <button type="submit">Sign Up</button>
+            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
         </form>
     </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Custom JS for form validation -->
+    <script>
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
 </body>
 </html>

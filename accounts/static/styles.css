@@ -1,413 +1,242 @@
 body {
+    background-color: #f7f9fc;
     margin: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: visible; /*Prevents Scrolling*/
+    padding-top: 60px;
 }
 .container {
+    margin-top: 30px;
+}
+.apiary-header {
     display: flex;
-    width: 100%;
-}
-
-.sidebar {
-    width: 150px;
-    background-color: #ffc619;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: right;
-}
-.image-container {
-    width: 50%; /* or any specific width */
-    height: 70px; /* or any specific height */
-    overflow: hidden;
-}
-
-.image-container img {
-    width: 90%;
-    height: 90%;
-    object-fit: scale-down;/* other options: contain, fill, scale-down, none */
-    object-position: left;
-}
-.sidebar-menu {
-    flex: 1;
-}
-
-.sidebar-menu ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.sidebar-menu ul li {
-    margin: 10px 0;
-}
-
-.sidebar-menu ul li a {
-    text-decoration: none;
-    color: #333;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.sidebar-menu ul li a.active,
-.sidebar-menu ul li a:hover {
-    background-color: #c09103;
-    color: white;
-}
-
-.documentation {
-    background-color: #c09103;
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-    color: white;
-}
-
-.documentation button {
-    background: none;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.main-content {
-    flex: 1;
-    padding: 20px;
-}
-
-.header {
-    margin-bottom: 20px;
-}
-
-.overview {
-    display: flex;
-    flex-direction: column;
-}
-
-.overview-item {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-
-.chart-container {
-    width: 200%;
-    max-height: fit-content(100%);
-    max-width: 700px;
-    margin: 20px auto;
-    border: 1px solid #ccc;
-}
-
-.hive-info {
-    margin: 20px 0;
-}
-
-.hive {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 5px;
-    flex: 1;
-    min-width: 200px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table th,
-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-
-table th {
-    background-color: #f2f2f2;
-}
-
-.profile {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.profile-header {
-    display: flex;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
-
-.profile-photo img {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-}
-
-.profile-info {
-    margin-left: 20px;
-}
-
-.profile-info h1 {
+.apiary-header h2 {
     margin: 0;
-    font-size: 24px;
+    color: #ff8800;
 }
-
-.edit-btn {
-    background-color: #ffc619;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.edit-btn:hover {
-    background-color: #c09103;
-}
-
-.profile-details,
-.profile-notifications {
-    margin-bottom: 20px;
-}
-
-.profile-details h2,
-.profile-notifications h2 {
-    margin-top: 0;
-}
-
-.profile-details ul,
-.profile-notifications ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.profile-details ul li,
-.profile-notifications ul li {
-    background-color: #f4f4f4;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-.subscription {
-    background-color: white;
-    padding: 20px;
+.card {
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.subscription h1, .subscription h2 {
-    margin-top: 0;
-}
-
-.plan {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 5px;
     margin-bottom: 20px;
+    display: flex;
 }
-
-.plan h2 {
-    margin-top: 0;
-}
-
-.payment-methods form {
-    margin-bottom: 20px;
-}
-
-.payment-option {
-    margin-bottom: 10px;
-}
-
-.payment-option label {
-    margin-left: 10px;
-}
-
-.pay-btn {
-    background-color: #ffc619;
+.card-header {
+    background-color: #ff8800;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-.pay-btn:hover {
-    background-color: #c09103;
-}
-
-.transactions {
-    margin-top: 20px;
-}
-
-.transactions table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.transactions table, .transactions th, .transactions td {
-    border: 1px solid #ddd;
-}
-
-.transactions th, .transactions td {
+    border-radius: 8px 8px 0 0;
     padding: 10px;
-    text-align: left;
 }
-
-.transactions th {
-    background-color: #f4f4f4;
+.hive-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #e0d91b;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #fff;
+    margin: 10px;
+    width: 150px;
+    height: 200px;
+}
+.hive-image {
+    width: 100%;
+    height: 100px;
+    background-color: #ffcc00;
+    border-radius: 4px;
+}
+.hive-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+.hive-name {
+    font-weight: bold;
+}
+.hive-meta {
+    color: #757575;
+    font-size: 0.875rem;
+}
+.hive-details {
+    font-size: 0.75rem;
+    color: #757575;
+    text-align: center;
+}
+.apiary-section {
+    margin-bottom: 40px;
+}
+.column {
+    padding: 20px;
+}
+.left-column {
+    flex: 2;
+}
+.right-column {
+    flex: 1;
+}
+.alerts, .notifications {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
 }
 .footer {
-    position: bottom;
-    bottom: 0;
-    width: 100%;
-    text-align: left;
+    background-color: #cb4012 !important;
+    background-color: #cb4012; /* Footer color change */
+    color: white;
+    margin-top: 20px;
     padding: 10px 0;
-    background-color: none;
-    color: #333;
+    position: relative;
 }
-.footer a {
-    color: #4caf50;
-    text-decoration: none;
+.notifications {
+    position: relative;
+    margin-bottom: 20px;
 }
-.footer a:hover {
-    text-decoration: underline;
+.notification-icon {
+    cursor: pointer;
 }
-
-/* Media Queries for Responsiveness */
-@media (min-width: 768px) {
-    body {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-       
-    }
-
-    .main-content {
-        flex: 1;
-        padding: 20px;
-    }
-
-    .overview {
-        flex-direction: row;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    .overview-item {
-        width: 48%;
-    }
-
-    .charts {
-        flex-direction: row;
-        justify-content: space-between;
-    }
-
-    .chart {
-        width: 48%;
-    }
-}
-
-#menu-toggle {
+.dropdown-menu {
     display: none;
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-button {
-    background-color: #ffc619;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    background-color: #c09103;
-}
-
-/* Sidebar Active State */
-.sidebar.active {
-    transform: translateX(0);
-}
-
-@media (min-width: 1024px) {
-    .sidebar {
-        width: 300px;
-    }
-
-    .overview-item,
-    .chart {
-        width: 48%;
-    }
-    .charts {
-        flex-direction: row;
-        justify-content: space-between;
-    }
-
-    .chart {
-        width: 48%;
-    }
-}
-#menu-toggle {
-    display: none;
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-button {
-    background-color: #ffc619;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    background-color: #c09103;
-}
-
-.footer {
-    position: bottom;
-    bottom: 0;
-    width: 100%;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    display: block;
+    min-width: 200px;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
     text-align: left;
-    padding: 10px 0;
-    background-color: none;
-    color: #333;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
 }
-.footer a {
-    color: #4caf50;
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 1.5rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+}
+.dropdown-item:hover {
+    color: #16181b;
     text-decoration: none;
+    background-color: #f8f9fa;
 }
-.footer a:hover {
-    text-decoration: underline;
+.navbar {
+    background-color: #cb4012 !important;
+}
+.navbar .nav-link {
+    color: white !important;
+}
+.navbar-brand {
+    color: white !important;
+}
+.tips {
+    background-color: #f8f9fa; /* Light background */
+    padding: 20px; /* Padding inside the tips section */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-top: 20px; /* Space above the section */
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
+.tips h2 {
+    font-size: 24px; /* Increase title font size */
+    margin-bottom: 15px; /* Space below the title */
+    text-align: center; /* Centered title */
+}
+
+.tips ul {
+    list-style: none; /* Remove default list styling */
+    padding: 0; /* Remove padding */
+}
+
+.tips li {
+    background-color: #ffffff; /* White background for list items */
+    margin-bottom: 10px; /* Space between items */
+    padding: 15px; /* Padding inside items */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Slight shadow */
+    display: flex; /* Flexbox layout for list items */
+    align-items: center; /* Align items vertically */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+}
+
+.tips li strong {
+    font-weight: bold; /* Bold for the tip title */
+    margin-right: 10px; /* Space between title and description */
+    flex: 1 1 100%; /* Full width on small screens */
+}
+
+.tips li i {
+    margin-right: 10px; /* Space after the icon */
+    color: #ffc107; /* Icon color (optional) */
+    flex-shrink: 0; /* Prevent the icon from shrinking */
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
+    .tips h2 {
+        font-size: 20px; /* Smaller title font size on smaller screens */
     }
 
-    .logo img {
-        width: 80px;
+    .tips li {
+        padding: 10px; /* Less padding on smaller screens */
     }
+
+    .tips li strong {
+        font-size: 18px; /* Smaller font size for titles */
+    }
+}
+.notifications {
+    margin-bottom: 60px;
+    width: auto; /* Space below notifications section */
+}
+
+.notifications .dropdown-menu {
+    max-height: 300px; /* Limit height */
+    overflow-y: auto; /* Scroll if content overflows */
+}
+
+/* Optional: Responsive adjustments */
+@media (max-width: 768px) {
+    .right-column {
+        margin-top: 20px;
+    }
+
+    .tips, .notifications {
+        margin-top: 20px;
+    }
+}
+.notification-item.read {
+    background-color: #e9ecef;
+}
+
+.delete-icon {
+    cursor: pointer;
+    color: red;
+}
+
+.notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-item span {
+    flex-grow: 1;
+    cursor: pointer;
 }

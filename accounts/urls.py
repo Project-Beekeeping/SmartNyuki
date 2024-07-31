@@ -7,7 +7,7 @@ from .views import hives
 from .views import subscription
 from .views import profile, profile1
 from .views import save_fcm_token
-from .views import logout
+from .views import logout, analytics
 from .views import settings, firebase_messaging_sw_js
 from .views import password_reset
 from .views import send_test_notification, send_notification, send_notification_view
@@ -25,6 +25,7 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('profile1/', profile1, name='profile1'),
     path('settings/', settings, name='settings'),
+    path('analytics/', analytics, name='analytics'),
     path('logout/', logout, name='logout'),
     path('reset_password/', views.password_reset, name='reset_password'),
     path('save-token/', views.save_token, name='save_token'),

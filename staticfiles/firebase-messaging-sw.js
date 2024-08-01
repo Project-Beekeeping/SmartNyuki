@@ -1,21 +1,30 @@
-
 importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js');
-
-
-// Initialize Firebase
+  
 var firebaseConfig = {
-  apiKey: "AIzaSyCiraum9gVPXkgP3KgEXk3WMhEb64XZjZE",
-  authDomain: "project-login2-6c049.firebaseapp.com",
-  projectId: "project-login2-6c049",
-  storageBucket: "project-login2-6c049.appspot.com",
-  messagingSenderId: "865918979599",
-  appId: "1:865918979599:web:b0cb8e55945a81921d9d7a",
-  databaseURL: "https://project-login2-6c049-default-rtdb.europe-west1.firebasedatabase.app/",
+  apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+  authDomain: "projectmain1-44cce.firebaseapp.com",
+  databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "projectmain1-44cce",
+  storageBucket: "projectmain1-44cce.appspot.com",
+  messagingSenderId: "592837634615",
+  appId: "1:592837634615:web:ca63818dd7101534dc6db2"
 };
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
+
+self.addEventListener('push', function (event) {
+  const data = event.data.json();
+  const title = data.notification.title;
+  const options = {
+    body: data.notification.body,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  )
+});
 
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);

@@ -7,7 +7,7 @@ from .views import hives
 from .views import subscription
 from .views import profile, profile1
 from .views import save_fcm_token
-from .views import logout, analytics
+from .views import logout, analytics, landing
 from .views import settings, firebase_messaging_sw_js
 from .views import password_reset
 from .views import send_test_notification, send_notification, send_notification_view
@@ -17,6 +17,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('home/', views.home, name='home'),
+    path('landing/', views.landing, name='landing'),
     path("signup/", signup, name="signup"),
     path('signin/', signin, name='signin'),
     path('dashboard/', dashboard, name='dashboard'),

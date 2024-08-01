@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,108 +10,76 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="{% static 'styles.css' %}" rel="stylesheet">
     <style>
         body {
-            background-color: rgba(232, 77, 5, 0.78);
-            background-position: center;
-            font-family: Arial, sans-serif;
-            color: #333;
+            background-color: #f7f9fc;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            overflow: hidden; /* Ensure no scrollbars */
         }
-
         .signup-container {
             background: #fff;
-            opacity: 0.8;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            max-width: 700px;
+            max-width: 400px;
             width: 100%;
-            text-align: center;
-            position: relative; /* Make container the reference point */
         }
-
-        .signup-container img {
-            max-width: 150px;
+        .signup-container h2 {
             margin-bottom: 20px;
         }
-
-        .signup-container h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        .signup-container button {
-            background-color: #cb4012;
-        }
-
-        .form-control {
-            border-radius: 0;
-            border-color: #ccc;
-            box-shadow: none;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
         .form-group i {
             position: absolute;
             right: 10px;
             top: 10px;
             color: #aaa;
         }
-
-        /* Bee animation */
-        .bee {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: url('/images/ezgif-6-36a7414e2a.gif') no-repeat center center;
-            background-size: contain;
-            animation: rotate 10s infinite linear;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg) translateX(200px) rotate(0deg); }
-            100% { transform: rotate(90deg) translateX(200px) rotate(-90deg); }
+        .alert {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="signup-container">
-        <div class="bee"></div>
-        <!-- Image and Title -->
-        <img src="{% static 'images/Smart.png' %}" alt="App Logo">
-        <h1>SMART NYUKI SOLUTIONS</h1>
-        
-        <form id="signup">
+        <h2 class="text-center">Sign Up</h2>
+        <div id="alert" class="alert alert-danger" role="alert">
+            <!-- Error message will be injected here -->
+        </div>
+        <form class="needs-validation" novalidate>
             <div class="form-group position-relative">
                 <label for="username">Username</label>
                 <input type="text" class="form-control" id="username" placeholder="Enter username" required>
                 <i class="fas fa-user"></i>
+                <div class="invalid-feedback">
+                    Please provide a username.
+                </div>
             </div>
             <div class="form-group position-relative">
                 <label for="email">Email address</label>
                 <input type="email" class="form-control" id="email" placeholder="Enter email" required>
                 <i class="fas fa-envelope"></i>
+                <div class="invalid-feedback">
+                    Please provide a valid email address.
+                </div>
             </div>
             <div class="form-group position-relative">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" placeholder="Password" required>
                 <i class="fas fa-lock"></i>
+                <div class="invalid-feedback">
+                    Please provide a password.
+                </div>
             </div>
             <div class="form-group position-relative">
                 <label for="confirm-password">Confirm Password</label>
                 <input type="password" class="form-control" id="confirm-password" placeholder="Confirm Password" required>
                 <i class="fas fa-lock"></i>
+                <div class="invalid-feedback">
+                    Please confirm your password.
+                </div>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
         </form>
@@ -121,23 +89,100 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Custom JS for form validation -->
-    <script>
-        (function () {
-            'use strict';
-            window.addEventListener('load', function () {
-                var forms = document.getElementsByClassName('needs-validation');
-                var validation = Array.prototype.filter.call(forms, function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js"></script>
+
+    <script type="module">
+        // Import the required Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+            authDomain: "projectmain1-44cce.firebaseapp.com",
+            databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "projectmain1-44cce",
+            storageBucket: "projectmain1-44cce.appspot.com",
+            messagingSenderId: "592837634615",
+            appId: "1:592837634615:web:ca63818dd7101534dc6db2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Function to handle sign-up
+        const handleSignUp = async (username, email, password) => {
+            const alertDiv = document.getElementById('alert');
+            try {
+                // Create user with email and password
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Update user profile with username
+                await updateProfile(auth.currentUser, { displayName: username });
+
+                // Send email verification
+                await sendEmailVerification(userCredential.user);
+
+                // Store user in Firestore
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    username: username,
+                    email: email,
+                    emailVerified: false
                 });
-            }, false);
-        })();
+
+                // Display success message
+                alertDiv.textContent = 'User signed up successfully! Please verify your email address.';
+                alertDiv.style.color = 'green';
+                alertDiv.style.display = 'block';
+
+                // Start polling for email verification status
+                const intervalId = setInterval(async () => {
+                    // Refresh user data
+                    await auth.currentUser.reload();
+
+                    // Check if email is verified
+                    if (auth.currentUser.emailVerified) {
+                        clearInterval(intervalId);
+                        // Update Firestore to set emailVerified to true
+                        await setDoc(doc(db, 'users', userCredential.user.uid), {
+                            username: username,
+                            email: email,
+                            emailVerified: true
+                        });
+
+                        alertDiv.textContent = 'Email verified successfully! Redirecting to sign-in page...';
+                        setTimeout(() => {
+                            window.location.href = '{% url "signin" %}';
+                        }, 1000); // Redirect after 1 second
+                    }
+                }, 2000); // Check every 2 seconds
+            } catch (error) {
+                console.error('Error signing up:', error);
+                alertDiv.textContent = 'Failed to sign up: ' + error.message;
+                alertDiv.style.color = 'red';
+                alertDiv.style.display = 'block';
+            }
+        };
+
+        // Add a listener for the submit event on the form
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                await handleSignUp(username, email, password);
+            });
+        });
     </script>
 </body>
 </html>

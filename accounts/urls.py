@@ -4,7 +4,7 @@ from .views import signup
 from .views import signin
 from .views import dashboard
 from .views import hives
-from .views import subscription
+from .views import subscription, contact_view
 from .views import profile2, profile1, profile
 from .views import save_fcm_token
 from .views import logout, analytics, landing
@@ -21,6 +21,7 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path('signin/', signin, name='signin'),
     path('dashboard/', dashboard, name='dashboard'),
+    path('contact/', contact_view, name='contact'),
     path('profile/', profile, name='profile'),
     path('profile/update/', views.update_profile, name='update_profile'),
     path('hives/', hives, name='hives'),

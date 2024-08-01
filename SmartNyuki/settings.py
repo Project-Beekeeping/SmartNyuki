@@ -230,3 +230,10 @@ MPESA_ACCESS_TOKEN = 'YourMpesaAccessToken'
 
 # settings.py
 FIREBASE_API_KEY = '35fc259adf6fda4bda4ab72b2a3a0999195cf5224864b069dc3cc6d313afc7bb90141a39e69133df'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'methusellanyongesa057@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'ucot mdqd owfe zibu'  # Replace with your email password

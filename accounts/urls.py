@@ -22,6 +22,7 @@ urlpatterns = [
     path('signin/', signin, name='signin'),
     path('dashboard/', dashboard, name='dashboard'),
     path('profile/', profile, name='profile'),
+    path('profile/update/', views.update_profile, name='update_profile'),
     path('hives/', hives, name='hives'),
     path('subscription/', subscription, name='subscription'),
     path('profile2/', profile2, name='profile2'),

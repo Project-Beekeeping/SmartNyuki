@@ -1,4 +1,4 @@
-{% load static%}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +18,7 @@
         }
         .profile-card {
             max-width: 400px;
-            margin: 100px auto;
+            margin: 50px auto;
             padding: 30px;
             background: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -42,7 +42,7 @@
         .profile-card .btn {
             width: 100%;
         }
-       footer {
+        footer {
             background-color: #cb4012;
             color: white;
             padding: 10px 0;
@@ -58,7 +58,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <a class="navbar-brand" href="{% url 'dashboard' %}">
         <img src="{% static 'images/Smart.png' %}" alt="Smart Beekeeping Logo" style="height: 60px;">
-        <img src=" {% static 'images/Dashh.gif' %}" alt="Logo" width="50" height="50">
+        <img src="{% static 'images/Dashh.gif' %}" alt="Logo" width="50" height="50">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -72,17 +72,17 @@
                 <a class="nav-link" href="{% url 'analytics' %}">Analytics</a>
             </li>
             <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="toggleNotifications()">
-                        <i class="fas fa-bell"></i> Notifications
-                        <span class="badge badge-danger" id="unreadCount" style="display: none;">0</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" id="notificationsDropdown" aria-labelledby="notificationsDropdownToggle">
-                        <h6 class="dropdown-header">Notifications</h6>
-                        <div id="notificationList">
-                            <!-- Notifications will be dynamically added here -->
-                        </div>
+                <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i> Notifications
+                    <span class="badge badge-danger" id="unreadCount" style="display: none;">0</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" id="notificationsDropdown" aria-labelledby="notificationsDropdownToggle">
+                    <h6 class="dropdown-header">Notifications</h6>
+                    <div id="notificationList">
+                        <!-- Notifications will be dynamically added here -->
                     </div>
-                </li>
+                </div>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'profile' %}">Profile</a>
             </li>
@@ -91,10 +91,15 @@
 </nav>
 
 <div class="profile-card text-center">
-    <div class="avatar" style="background-image: url('https://via.placeholder.com/100');"></div>
-    <h2>John Doe</h2>
-    <p>john.doe@example.com</p>
-    <a href="{% url 'logout' %}" class="btn btn-primary">Log Out</a>
+    <form method="post" enctype="multipart/form-data" action="{% url 'update_profile' %}">
+        {% csrf_token %}
+        <div class="avatar" style="background-image: url('{{ user.profile_picture.url|default:'https://via.placeholder.com/100' }}');"></div>
+        <input type="file" name="profile_picture" accept="image/*" class="form-control mb-3" />
+        <h2>{{ user.username }}</h2>
+        <p>{{ user.email }}</p>
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+    </form>
+    <a href="{% url 'logout' %}" class="btn btn-secondary mt-3">Log Out</a>
 </div>
 
 <footer>
@@ -103,39 +108,39 @@
 
 <script>
     // Notification script
-        let unreadNotifications = 0;
-        const notificationsDropdown = document.getElementById('notificationList');
-        const unreadCount = document.getElementById('unreadCount');
+    let unreadNotifications = 0;
+    const notificationsDropdown = document.getElementById('notificationList');
+    const unreadCount = document.getElementById('unreadCount');
 
-        const socket = new WebSocket('ws://127.0.0.1:8000/ws/notifications/');
-        socket.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            displayNotification(data.message);
-        };
+    const socket = new WebSocket('ws://127.0.0.1:8000/ws/notifications/');
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        displayNotification(data.message);
+    };
 
-        function displayNotification(message) {
-            const notificationItem = document.createElement('a');
-            notificationItem.classList.add('dropdown-item');
-            notificationItem.href = '#';
-            notificationItem.textContent = message;
+    function displayNotification(message) {
+        const notificationItem = document.createElement('a');
+        notificationItem.classList.add('dropdown-item');
+        notificationItem.href = '#';
+        notificationItem.textContent = message;
 
-            notificationsDropdown.insertBefore(notificationItem, notificationsDropdown.firstChild);
-            unreadNotifications++;
+        notificationsDropdown.insertBefore(notificationItem, notificationsDropdown.firstChild);
+        unreadNotifications++;
+        unreadCount.textContent = unreadNotifications;
+        unreadCount.style.display = 'inline';
+    }
+
+    function toggleNotifications() {
+        const isDisplayed = notificationsDropdown.style.display === 'block';
+        notificationsDropdown.style.display = isDisplayed ? 'none' : 'block';
+
+        if (!isDisplayed) {
+            // Hide unread notifications count when the dropdown is closed
+            unreadNotifications = 0;
             unreadCount.textContent = unreadNotifications;
-            unreadCount.style.display = 'inline';
+            unreadCount.style.display = 'none';
         }
-
-        function toggleNotifications() {
-            const isDisplayed = notificationsDropdown.style.display === 'block';
-            notificationsDropdown.style.display = isDisplayed ? 'none' : 'block';
-
-            if (!isDisplayed) {
-                // Hide unread notifications count when the dropdown is closed
-                unreadNotifications = 0;
-                unreadCount.textContent = unreadNotifications;
-                unreadCount.style.display = 'none';
-            }
-        }
+    }
 </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

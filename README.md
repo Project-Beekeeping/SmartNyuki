@@ -31,7 +31,7 @@ SmartNyuki is a web application designed to monitor hive conditions and send not
 1. **Clone the Repository**:
     ```sh
     git clone https://github.com/your-username/Project-Beekeeping/SmartNyuki.git
-    cd smart-beekeeping
+    cd SmartNyuki
     ```
 
 2. **Create and Activate Virtual Environment**:

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Smart Beekeeping is a web application designed to monitor hive conditions and send notifications based on data thresholds. The project utilizes Django for the backend and pure HTML, CSS, and JavaScript for the frontend.
+SmartNyuki is a web application designed to monitor hive conditions and send notifications based on data thresholds. The project utilizes Django for the backend and pure HTML, CSS, and JavaScript for the frontend.
 
 ## Features
 
@@ -93,27 +93,48 @@ Smart Beekeeping is a web application designed to monitor hive conditions and se
 
 ## Project Structure
 
-smart-beekeeping/
+SmartNyuki/
+
 ├── accounts/
+
 │ ├── static/
+
 │ │ ├── images/
+
 │ │ ├── js and css files
+
 │ ├── templates/
+
 │ ├── init.py
+
 │ ├── admin.py
+
 │ ├── apps.py
+
 │ ├── models.py
+
 │ ├── tests.py
+
 │ └── views.py
+
 ├── SmartNyuki/
+
 │ ├── init.py
+
 │ ├── asgi.py
+
 │ ├── settings.py
+
 │ ├── urls.py
+
 │ └── wsgi.py
+
 ├── manage.py
+
 ├── project-login2-6c049-firebase-adminsdk-gh0yz-c6e5174321.json
+
 ├── README.md
+
 └── requirements.txt
 
 

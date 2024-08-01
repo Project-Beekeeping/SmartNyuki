@@ -193,6 +193,16 @@ def subscription(request):
 def profile(request):
     return render(request, 'profile.html')
 
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        if 'profile_picture' in request.FILES:
+            user.profile.profile_picture = request.FILES['profile_picture']
+            user.profile.save()
+        return redirect('profile')
+    return render(request, 'profile.html')
+
 def profile2(request):
     return render(request, 'profile2.html')
 

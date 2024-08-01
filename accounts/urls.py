@@ -5,7 +5,7 @@ from .views import signin
 from .views import dashboard
 from .views import hives
 from .views import subscription
-from .views import profile, profile1
+from .views import profile2, profile1, profile
 from .views import save_fcm_token
 from .views import logout, analytics, landing
 from .views import settings, firebase_messaging_sw_js
@@ -21,9 +21,10 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path('signin/', signin, name='signin'),
     path('dashboard/', dashboard, name='dashboard'),
+    path('profile/', profile, name='profile'),
     path('hives/', hives, name='hives'),
     path('subscription/', subscription, name='subscription'),
-    path('profile/', profile, name='profile'),
+    path('profile2/', profile2, name='profile2'),
     path('profile1/', profile1, name='profile1'),
     path('settings/', settings, name='settings'),
     path('analytics/', analytics, name='analytics'),

@@ -1,0 +1,187 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="image-container">
+                <img src="{% static 'images/SmartNyuki.png' %}" alt="Company Logo" class="responsive-image">
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="{% url 'hives' %}"><i class="fas fa-box"></i> Hives</a></li>
+                    <li><a href="{% url 'subscription' %}"><i class="fas fa-credit-card"></i> Subscription</a></li>
+                    <li><a href="{% url 'profile2' %}" class="active"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+                </ul>
+            </div>
+            <div class="documentation">
+                <p>Need help? Please check our docs</p>
+                <button>Documentation</button>
+            </div>
+        </div>  
+        <div class="main-content">
+            <div class="header">
+                <h1>Profile</h1>
+            </div>
+            <div class="content">
+                <div class="profile">
+                    <div class="profile-header">
+                        <div class="profile-photo">
+                            <img src="{% static 'images/profile.png' %}" alt="Profile Photo" class="responsive-image">
+                        </div>
+                        <div class="profile-info">
+                            <h1>John Doe</h1>
+                            <button class="edit-btn">Edit Profile</button>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <h2>User Details</h2>
+                        <ul>
+                            <li><strong>Email:</strong> johndoe@example.com</li>
+                            <li><strong>Phone:</strong> +254700000000</li>
+                            <li><strong>Address:</strong> Gatundu-Juja, Juja, Kiambu</li>
+                        </ul>
+                    </div>
+                    <div class="profile-notifications">
+                        <h2>Notifications</h2>
+                        <ul>
+                            <li>You have a new message.</li>
+                            <li>Your subscription will expire in 10 days.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                &copy; 2024 Smart Nyuki. All Rights Reserved. <a href="https://www.smartabee.netlify.app.com">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+    <script>
+      function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === ('csrftoken=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+      }
+
+      function saveTokenToBackend(token) {
+        fetch('/save-fcm-token/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ token: token })
+        }).then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Token saved to backend:', data);
+        }).catch(error => {
+            console.error('Error saving token to backend:', error.message);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        var firebaseConfig = {
+          apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+          authDomain: "projectmain1-44cce.firebaseapp.com",
+          databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "projectmain1-44cce",
+          storageBucket: "projectmain1-44cce.appspot.com",
+          messagingSenderId: "592837634615",
+          appId: "1:592837634615:web:ca63818dd7101534dc6db2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const messaging = firebase.messaging();
+
+        Notification.requestPermission()
+          .then((permission) => {
+            if (permission === 'granted') {
+              console.log('Notification permission granted.');
+              return messaging.getToken({ vapidKey: 'BHlZePK-xq5Vfrgf76S6lvXw2yqkpMTqEdQALF_WQyI79neNn-vrJ_Dtkd1fLD5wviLpDtokJdNMpKcqrkm6SiE'});
+            } else {
+              console.error('Unable to get permission to notify.');
+            }
+          })
+          .then((token) => {
+            if (token) {
+              console.log('Token received: ', token);
+              saveTokenToBackend(token);
+            }
+          })
+          .catch((err) => {
+            console.error('Error getting token or permission:', err);
+          });
+
+        const db = firebase.firestore();
+
+        db.collection("hives").onSnapshot((snapshot) => {
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.temperature > THRESHOLD_TEMPERATURE || data.humidity > THRESHOLD_HUMIDITY || data.sound > THRESHOLD_SOUND || data.weight > THRESHOLD_WEIGHT) {
+              sendNotification(data);
+            }
+          });
+        });
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register("{% static 'firebase-messaging-sw.js' %}")
+            .then((registration) => {
+              console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch((err) => {
+              console.error('Service Worker registration failed:', err);
+              console.log('Attempted to register service worker at:', '/static/firebase-messaging-sw.js');
+            });
+        }
+      });
+
+      function sendNotification(data) {
+        const notificationTitle = 'Threshold Exceeded';
+        const notificationOptions = {
+          body: `Thresholds for ${Object.keys(data).filter(key => data[key] > THRESHOLD).join(", ")} exceeded.`,
+        };
+
+        if (Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then((registration) => {
+            console.log('Sending notification:', notificationTitle, notificationOptions);
+            registration.showNotification(notificationTitle, notificationOptions);
+          });
+        } else {
+          console.error('Notification permission not granted.');
+        }
+      }
+
+      const THRESHOLD_TEMPERATURE = 20;
+      const THRESHOLD_HUMIDITY = 80;
+      const THRESHOLD_SOUND = 70;
+      const THRESHOLD_WEIGHT = 10;
+    </script>
+</body>
+</html>

@@ -21,7 +21,6 @@ from firebase_admin import firestore # type: ignore
 ''' from pyfcm import FCMNotification # type: ignore '''
 from django.conf import settings as st
 import requests
-from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -139,6 +138,29 @@ def home(request):
 
 def dashboard(request):
     return render(request, 'dashboard.html')
+
+def contact_view(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        
+        # Construct the email content
+        subject = f"Message from {name}"
+        message_body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+        from_email = st.EMAIL_HOST_USER  # Your configured email
+        
+        # Send email
+        send_mail(
+            subject=subject,
+            message=message_body,
+            from_email=from_email,
+            recipient_list=['methusellanyongesa004@gmail.com'],  # Replace with your email
+        )
+        
+        return HttpResponse("Message sent successfully!")
+    
+    return render(request, 'landing.html')
 
 def signup(request):
     if request.method == 'POST':

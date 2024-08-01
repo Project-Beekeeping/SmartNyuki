@@ -94,48 +94,29 @@ SmartNyuki is a web application designed to monitor hive conditions and send not
 ## Project Structure
 
 SmartNyuki/
-
 ├── accounts/
-
 │ ├── static/
-
 │ │ ├── images/
-
-│ │ ├── js and css files
-
+│ │ ├── js/
+│ │ └── css/
 │ ├── templates/
-
 │ ├── init.py
-
 │ ├── admin.py
-
 │ ├── apps.py
-
 │ ├── models.py
-
 │ ├── tests.py
-
 │ └── views.py
-
 ├── SmartNyuki/
-
 │ ├── init.py
-
 │ ├── asgi.py
-
 │ ├── settings.py
-
 │ ├── urls.py
-
 │ └── wsgi.py
-
 ├── manage.py
-
 ├── project-login2-6c049-firebase-adminsdk-gh0yz-c6e5174321.json
-
 ├── README.md
-
 └── requirements.txt
+
 
 
 

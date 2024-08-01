@@ -1,279 +1,290 @@
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('addApiaryForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        addApiary();
-    });
 
-    document.getElementById('addHiveForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        addHive();
-    });
+// Import Firebase SDKs
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, getDoc, query, where } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
 
-    document.getElementById('clearAllBtn').addEventListener('click', confirmClearAllApiaries);
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyC3ANmOdzhjPgxWq91vx_qnpVMpDq-qhig",
+    authDomain: "projectmain1-44cce.firebaseapp.com",
+    databaseURL: "https://projectmain1-44cce-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "projectmain1-44cce",
+    storageBucket: "projectmain1-44cce.appspot.com",
+    messagingSenderId: "592837634615",
+    appId: "1:592837634615:web:ca63818dd7101534dc6db2"
+};
 
-    document.getElementById('apiaryData').addEventListener('click', function(e) {
-        if (e.target.classList.contains('options-icon')) {
-            const apiaryIndex = e.target.dataset.apiaryIndex;
-            const hiveIndex = e.target.dataset.hiveIndex;
-            const dropdown = document.querySelector(`#options-dropdown-${apiaryIndex}-${hiveIndex}`);
-            $(dropdown).toggle(); // Toggle visibility of the dropdown menu
-        }
-        if (e.target.classList.contains('dropdown-item')) {
-            const action = e.target.dataset.action;
-            const apiaryIndex = e.target.dataset.apiaryIndex;
-            const hiveIndex = e.target.dataset.hiveIndex;
-            if (action === 'delete') {
-                deleteHive(apiaryIndex, hiveIndex);
-            } else if (action === 'analytics') {
-                showHiveAnalytics(apiaryIndex, hiveIndex);
-            }
-        }
-    });
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
 
-    loadApiaries();
-});
+// DOM Elements
+const addApiaryForm = document.getElementById('addApiaryForm');
+const apiaryData = document.getElementById('apiaryData');
+const addHiveForm = document.getElementById('addHiveForm');
 
-function addApiary() {
+// Add a new apiary
+addApiaryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const apiaryName = document.getElementById('apiaryName').value;
     const apiaryLocation = document.getElementById('apiaryLocation').value;
 
-    const apiary = {
-        name: apiaryName,
-        location: apiaryLocation,
-        hives: []
-    };
+    const user = auth.currentUser;
 
-    const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-    apiaries.push(apiary);
-    localStorage.setItem('apiaries', JSON.stringify(apiaries));
-    document.getElementById('addApiaryForm').reset();
-    loadApiaries();
-}
-
-function confirmClearAllApiaries() {
-    if (confirm("Are you sure you want to clear all apiaries?")) {
-        clearAllApiaries();
+    if (user && apiaryName && apiaryLocation) {
+        try {
+            await addDoc(collection(db, 'apiaries'), {
+                userId: user.uid,
+                name: apiaryName,
+                location: apiaryLocation
+            });
+            console.log("Apiary added successfully");
+            addApiaryForm.reset();
+            fetchApiaries();
+        } catch (error) {
+            console.error("Error adding apiary: ", error);
+        }
+    } else {
+        alert("Please fill in all fields.");
     }
-}
+});
 
-function clearAllApiaries() {
-    localStorage.removeItem('apiaries');
-    loadApiaries();
-}
+// Fetch and display apiaries
+async function fetchApiaries() {
+    apiaryData.innerHTML = '';
 
-function loadApiaries() {
-    const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-    const apiaryDataDiv = document.getElementById('apiaryData');
-    apiaryDataDiv.innerHTML = '';
+    const user = auth.currentUser;
 
-    apiaries.forEach((apiary, apiaryIndex) => {
-        const apiaryCard = document.createElement('div');
-        apiaryCard.className = 'col-md-4';
+    if (user) {
+        try {
+            const apiariesSnapshot = await getDocs(query(collection(db, 'apiaries'), where('userId', '==', user.uid)));
+            if (!apiariesSnapshot.empty) {
+                apiariesSnapshot.forEach((doc) => {
+                    const apiary = doc.data();
+                    const apiaryId = doc.id;
+                    const apiaryCard = document.createElement('div');
+                    apiaryCard.className = 'apiary-section';
 
-        apiaryCard.innerHTML = `
-            <div class="card">
-                <div class="card-header">
-                    ${apiary.name}
-                    <i class="fas fa-trash-alt float-right ml-2" onclick="deleteApiary(${apiaryIndex})"></i>
-                    <i class="fas fa-plus-circle float-right" onclick="openAddHiveModal(${apiaryIndex})"></i>
-                </div>
-                <div class="card-body">
-                    <p>Location: ${apiary.location}</p>
-                    <div class="hive-cards-container">
-                        ${apiary.hives.map((hive, hiveIndex) => `
-                            <div class="hive-card">
-                                <div class="hive-image"></div>
-                                <div class="hive-info">
-                                    <span class="hive-name">${hive.name}</span>
-                                    <span class="hive-meta">${hive.date}</span>
+                    apiaryCard.innerHTML = `
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="apiary-header">
+                                    <h2>${apiary.name}</h2>
+                                    <div class="icon-buttons">
+                                        <button class="btn btn-primary" onclick="openAddHiveModal('${apiaryId}')">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button class="btn btn-danger" onclick="deleteApiary('${apiaryId}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="options-icon" data-apiary-index="${apiaryIndex}" data-hive-index="${hiveIndex}">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </div>
-                                
-                                <button class="btn btn-info btn-sm mt-2" data-toggle="modal" data-target="#hiveConditionModal" onclick="loadHiveCondition('${apiaryIndex}', '${hiveIndex}')">View Conditions</button>
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
+                            <div class="card-body">
+                                <p class="card-text">${apiary.location}</p>
+                                <div id="hives-${apiaryId}" class="hive-container"></div>
+                            </div>
+                        </div>
+                    `;
+                    apiaryData.appendChild(apiaryCard);
 
-        apiaryDataDiv.appendChild(apiaryCard);
-    });
-}
-
-function deleteApiary(apiaryIndex) {
-    if (confirm("Are you sure you want to delete this apiary?")) {
-        const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-        apiaries.splice(apiaryIndex, 1);
-        localStorage.setItem('apiaries', JSON.stringify(apiaries));
-        loadApiaries();
+                    displayHives(apiaryId);
+                });
+            } else {
+                apiaryData.innerHTML = '<p>No apiaries found. Add a new apiary above.</p>';
+            }
+        } catch (error) {
+            console.error("Error fetching apiaries: ", error);
+            apiaryData.innerHTML = '<p>Error fetching apiaries. Check the console for more details.</p>';
+        }
+    } else {
+        apiaryData.innerHTML = '<p>Please log in to view your apiaries.</p>';
     }
 }
 
-function deleteHive(apiaryIndex, hiveIndex) {
-    if (confirm("Are you sure you want to delete this hive?")) {
-        const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-        apiaries[apiaryIndex].hives.splice(hiveIndex, 1);
-        localStorage.setItem('apiaries', JSON.stringify(apiaries));
-        loadApiaries();
-    }
-}
-
-function openAddHiveModal(apiaryIndex) {
-    document.getElementById('selectedApiary').value = apiaryIndex;
-    $('#addHiveModal').modal('show');
-}
-
-function addHive() {
-    const apiaryIndex = document.getElementById('selectedApiary').value;
+// Add a new hive
+addHiveForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const hiveName = document.getElementById('hiveName').value;
+    const selectedApiary = document.getElementById('selectedApiary').value;
 
-    const hive = {
-        name: hiveName,
-        date: new Date().toLocaleDateString()
-    };
+    const user = auth.currentUser;
 
-    const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-    apiaries[apiaryIndex].hives.push(hive);
-    localStorage.setItem('apiaries', JSON.stringify(apiaries));
-    document.getElementById('addHiveForm').reset();
-    $('#addHiveModal').modal('hide');
-    loadApiaries();
-}
-
-function loadHiveCondition(apiaryIndex, hiveIndex) {
-    const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-    const hive = apiaries[apiaryIndex].hives[hiveIndex];
-    if (hive) {
-        document.getElementById('hiveConditionDetails').innerHTML = `
-            <p><strong>Temperature:</strong> ${hive.temperature || 'N/A'}</p>
-            <p><strong>Humidity:</strong> ${hive.humidity || 'N/A'}</p>
-            <p><strong>Sound:</strong> ${hive.sound || 'N/A'}</p>
-            <p><strong>Weight:</strong> ${hive.weight || 'N/A'}</p>
-        `;
-        renderWeeklyGraph(hive.weeklyData || []);
+    if (user && hiveName) {
+        try {
+            await addDoc(collection(db, 'apiaries', selectedApiary, 'hives'), {
+                userId: user.uid,
+                name: hiveName
+            });
+            console.log("Hive added successfully");
+            addHiveForm.reset();
+            $('#addHiveModal').modal('hide');
+            displayHives(selectedApiary);
+        } catch (error) {
+            console.error("Error adding hive: ", error);
+        }
+    } else {
+        alert("Please enter a hive name.");
     }
-    $('#hiveConditionModal').modal('show');
+});
+
+// Display hives for a given apiary
+async function displayHives(apiaryId) {
+    const hivesContainer = document.getElementById(`hives-${apiaryId}`);
+    hivesContainer.innerHTML = '';
+
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            const hivesSnapshot = await getDocs(query(collection(db, 'apiaries', apiaryId, 'hives'), where('userId', '==', user.uid)));
+            if (!hivesSnapshot.empty) {
+                hivesSnapshot.forEach((doc) => {
+                    const hive = doc.data();
+                    const hiveId = doc.id;
+
+                    const hiveElement = document.createElement('div');
+                    hiveElement.className = 'hive-card';
+                    hiveElement.innerHTML = `
+                        <div class="hive-image">
+                            <!-- Optionally add an image or placeholder here -->
+                        </div>
+                        <div class="hive-info">
+                            <div class="hive-name">${hive.name}</div>
+                            <div class="hive-meta">
+                                <button class="btn btn-secondary btn-small" onclick="viewHiveCondition('${apiaryId}', '${hiveId}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="deleteHive('${apiaryId}', '${hiveId}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    hivesContainer.appendChild(hiveElement);
+                });
+            } else {
+                hivesContainer.innerHTML = '<p>No hives found for this apiary.</p>';
+            }
+        } catch (error) {
+            console.error("Error fetching hives: ", error);
+            hivesContainer.innerHTML = '<p>Error fetching hives. Check the console for more details.</p>';
+        }
+    } else {
+        hivesContainer.innerHTML = '<p>Please log in to view hives.</p>';
+    }
 }
 
-function renderWeeklyGraph(data) {
-    const ctx = document.getElementById('hiveWeeklyGraph').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Weekly Temperature',
-                data: data,
-                borderColor: '#ff8800',
-                fill: false
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+// Open modal to add a new hive
+window.openAddHiveModal = function (apiaryId) {
+    $('#addHiveModal').modal('show');
+    document.getElementById('selectedApiary').value = apiaryId;
+};
+
+// Delete an apiary
+window.deleteApiary = async function (apiaryId) {
+    if (confirm("Are you sure you want to delete this apiary?")) {
+        const user = auth.currentUser;
+
+        if (user) {
+            try {
+                const apiaryDoc = await getDoc(doc(db, 'apiaries', apiaryId));
+
+                if (apiaryDoc.exists() && apiaryDoc.data().userId === user.uid) {
+                    // Delete all hives under the apiary
+                    const hivesSnapshot = await getDocs(collection(db, 'apiaries', apiaryId, 'hives'));
+                    hivesSnapshot.forEach(async (doc) => {
+                        await deleteDoc(doc.ref);
+                    });
+
+                    // Delete the apiary
+                    await deleteDoc(doc(db, 'apiaries', apiaryId));
+                    console.log("Apiary deleted successfully");
+                    fetchApiaries();
+                } else {
+                    console.error("Unauthorized or apiary does not exist");
                 }
+            } catch (error) {
+                console.error("Error deleting apiary: ", error);
             }
+        } else {
+            alert("You must be logged in to delete an apiary.");
         }
-    });
+    }
 }
 
-function showHiveAnalytics(apiaryIndex, hiveIndex) {
-    const apiaries = JSON.parse(localStorage.getItem('apiaries')) || [];
-    const hive = apiaries[apiaryIndex].hives[hiveIndex];
-    const ctx = document.getElementById('hiveAnalyticsChart').getContext('2d');
-    const hiveCondition = document.getElementById('hiveCondition');
+// Delete a hive
+window.deleteHive = async function (apiaryId, hiveId) {
+    if (confirm("Are you sure you want to delete this hive?")) {
+        const user = auth.currentUser;
 
-    const analyticsData = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-        datasets: [{
-            label: 'Hive Temperature',
-            data: [23, 24, 22, 25, 26, 27], // Example data, replace with actual
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-        }]
-    };
+        if (user) {
+            try {
+                const hiveDoc = await getDoc(doc(db, 'apiaries', apiaryId, 'hives', hiveId));
 
-    const analyticsOptions = {
-        scales: {
-            y: {
-                beginAtZero: true
+                if (hiveDoc.exists() && hiveDoc.data().userId === user.uid) {
+                    await deleteDoc(hiveDoc.ref);
+                    console.log("Hive deleted successfully");
+                    displayHives(apiaryId);
+                } else {
+                    console.error("Unauthorized or hive does not exist");
+                }
+            } catch (error) {
+                console.error("Error deleting hive: ", error);
             }
+        } else {
+            alert("You must be logged in to delete a hive.");
         }
-    };
-
-    new Chart(ctx, {
-        type: 'line',
-        data: analyticsData,
-        options: analyticsOptions
-    });
-
-    hiveCondition.innerText = 'Good';  // Example condition
-    $('#hiveAnalyticsModal').modal('show');
-}
-function toggleNotifications() {
-    $('#notificationsDropdown').toggle();
+    }
 }
 
-// Function to generate random notifications
-function generateRandomNotification() {
-    const notifications = [
-        { message: 'New message from Admin', icon: '<i class="fas fa-envelope mr-2"></i>' },
-        { message: 'Hive 5 temperature alert', icon: '<i class="fas fa-exclamation-triangle mr-2"></i>' },
-        { message: 'Apiary maintenance scheduled', icon: '<i class="fas fa-info-circle mr-2"></i>' },
-        { message: 'Hive 3 humidity alert', icon: '<i class="fas fa-tint mr-2"></i>' },
-        { message: 'New inspection log added', icon: '<i class="fas fa-clipboard-check mr-2"></i>' },
-       
-        { message: 'Hive 7 in Apiary 1 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-        { message: 'Hive 7 weight alert', icon: '<i class="fas fa-weight-hanging mr-2"></i>' },
-    ];
+// View hive conditions (real data from Firestore)
+window.viewHiveCondition = async function (apiaryId, hiveId) {
+    const user = auth.currentUser;
 
-    const notification = notifications[Math.floor(Math.random() * notifications.length)];
-    const timestamp = new Date().toLocaleTimeString();
-    const notificationItem = `
-        <a class="dropdown-item notification-item" href="#" onclick="markAsRead(this)">
-            ${notification.icon} ${notification.message}
-            <span class="text-muted small float-right">${timestamp}</span>
-            <span class="delete-icon" onclick="deleteNotification(event, this)">&times;</span>
-        </a>
-    `;
-    $('#notificationsDropdown').prepend(notificationItem);
-    updateUnreadCount();
+    if (user) {
+        try {
+            const hiveDoc = await getDoc(doc(db, 'apiaries', apiaryId, 'hives', hiveId));
+
+            if (hiveDoc.exists() && hiveDoc.data().userId === user.uid) {
+                const hiveData = hiveDoc.data();
+
+                // Assuming hiveData contains fields like temperature, humidity, sound, and weight
+                const temperature = hiveData.temperature || 'N/A';
+                const humidity = hiveData.humidity || 'N/A';
+                const sound = hiveData.sound || 'N/A';
+                const weight = hiveData.weight || 'N/A';
+
+                const hiveConditionDetails = document.getElementById('hiveConditionDetails');
+                hiveConditionDetails.innerHTML = `
+                    <p><strong>Temperature:</strong> ${temperature}°C</p>
+                    <p><strong>Humidity:</strong> ${humidity}%</p>
+                    <p><strong>Sound:</strong> ${sound} dB</p>
+                    <p><strong>Weight:</strong> ${weight} kg</p>
+                `;
+                
+                // Optionally, you can add a graph display here using Chart.js or any other library
+                // Example:
+                // renderHiveWeeklyGraph(hiveData);
+                
+                $('#hiveConditionModal').modal('show');
+            } else {
+                console.error("Unauthorized access or hive data not found");
+            }
+        } catch (error) {
+            console.error("Error fetching hive conditions: ", error);
+        }
+    } else {
+        alert("Please log in to view hive conditions.");
+    }
 }
 
-// Function to update unread notification count
-function updateUnreadCount() {
-    const count = $('#notificationsDropdown .notification-item').length;
-    $('#unreadCount').text(count);
-}
+// Initial load
+fetchApiaries();
 
-// Function to mark notification as read
-function markAsRead(element) {
-    $(element).addClass('read');
-    updateUnreadCount();
-}
-
-// Function to delete notification
-function deleteNotification(event, element) {
-    event.stopPropagation();
-    $(element).closest('.notification-item').remove();
-    updateUnreadCount();
-}
-
-// Function to view all notifications
-function viewAllNotifications() {
-    const notifications = $('#notificationsDropdown .notification-item').clone();
-    $('#activityLogs').empty().append(notifications);
-}
-
-// Generate random notifications every 2 minutes
-setInterval(generateRandomNotification, 86400000);
-
-// Initialize notifications
-$(document).ready(function() {
-    generateRandomNotification();
+document.getElementById('logoutLink').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the default anchor behavior
+    window.location.href = '{% url "landing" %}'; // Redirect to cover.html
 });
